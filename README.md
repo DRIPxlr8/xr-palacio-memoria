@@ -4,7 +4,7 @@ Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2)
 
 ## Equipo
 
-- Benjamín Masson — benja.masson@gmail.com
+- Benjamín Masson — benjamin.masson@uc.cl
 - Joaquín Rubio — jrubic@uc.cl
 - Vicente San Juan — sanjuan.vicente@uc.cl
 
