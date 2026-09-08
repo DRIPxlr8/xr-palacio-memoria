@@ -1,6 +1,6 @@
 # Palacio de Memoria en Realidad Aumentada para el Aprendizaje de Terminología Técnica
 
-proyecto del curso IDI3185, Realidad Extendida (UC, 2026-1)
+Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-1)
 
 ## Equipo
 
@@ -32,6 +32,10 @@ La asociación espacial es el núcleo de la técnica. El usuario necesita regist
 - [x] Hito 1 — Formulación del proyecto (entregado 8 de septiembre de 2026)
 - [ ] Hito 2 — Prototipo lo-fi (13 de octubre de 2026)
 - [ ] Hito 3 — Prototipo final (24 de noviembre de 2026)
+
+## Control de versiones
+
+El informe se versiona en `/informe` a través del repositorio Git del equipo. A medida que el proyecto avanza entre hitos, el informe se actualiza sobre la misma base en lugar de reescribirse desde cero. Cada entrega queda marcada como un punto identificable en el historial, de modo que se pueda revisar cómo evolucionó el documento de un hito al siguiente.
 
 ## Estructura del repositorio
 
