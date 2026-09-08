@@ -1,6 +1,6 @@
 # Palacio de Memoria en Realidad Aumentada para el Aprendizaje de Terminología Técnica
 
-Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-1)
+Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2)
 
 ## Equipo
 
