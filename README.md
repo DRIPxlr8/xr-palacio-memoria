@@ -10,22 +10,22 @@
 
 ## Descripción del proyecto
 
-Los estudiantes de asignaturas con alta densidad de terminología técnica (anatomía, farmacología, glosarios especializados de ingeniería, etc.) suelen estudiar con métodos lineales — listas, tarjetas de memoria — que no aprovechan la memoria espacial. Este proyecto propone una aplicación de realidad aumentada que implementa la técnica del *palacio de la memoria* (method of loci): el estudiante ancla términos técnicos como objetos virtuales sobre su propio espacio físico, y luego repasa y se autoevalúa recorriendo ese mismo espacio.
+Los estudiantes de asignaturas con alta densidad de terminología técnica, como anatomía, farmacología o glosarios especializados de ingeniería, suelen estudiar con métodos lineales, como listas o tarjetas de memoria, que no aprovechan la memoria espacial. Este proyecto propone una aplicación de realidad aumentada que implementa la técnica del *palacio de la memoria* (*method of loci*). El estudiante ancla términos técnicos como objetos virtuales sobre su propio espacio físico y luego repasa y se autoevalúa recorriendo ese mismo espacio.
 
 ## Por qué XR
 
-La asociación espacial es el núcleo de la técnica: el usuario necesita registrar objetos virtuales sobre posiciones reales específicas y mantener esa asociación estable mientras se mueve. Esto depende directamente de las capacidades de tracking y registro propias de la realidad aumentada, y no se puede replicar con una app 2D convencional.
+La asociación espacial es el núcleo de la técnica. El usuario necesita registrar objetos virtuales sobre posiciones reales específicas y mantener esa asociación estable mientras se mueve. Esto depende directamente de las capacidades de *tracking* y registro propias de la realidad aumentada y no se puede replicar con una app 2D convencional.
 
 ## Casos de uso
 
-1. **Anclar términos nuevos** — el usuario coloca objetos virtuales sobre superficies reales, asociando cada uno a un término y su definición.
+1. **Anclar términos nuevos** — el usuario coloca objetos virtuales sobre superficies reales y asocia cada uno a un término y su definición.
 2. **Repasar en modo estudio** — el usuario recorre el espacio y consulta las definiciones ya ancladas.
-3. **Autoevaluarse en modo quiz** — el usuario recorre el espacio sin ver las etiquetas, intenta recordar y confirma tocando el objeto.
+3. **Autoevaluarse en modo quiz** — el usuario recorre el espacio sin ver las etiquetas, intenta recordar la información y confirma tocando el objeto.
 
 ## Tecnologías
 
-- Unity + AR Foundation (plugin ARKit)
-- Dispositivo objetivo: iPad Pro 11" (laboratorio DILAB)
+- Unity + AR Foundation, con plugin ARKit
+- Dispositivo objetivo: iPad Pro 11" del laboratorio DILAB
 
 ## Estado actual
 
@@ -35,12 +35,12 @@ La asociación espacial es el núcleo de la técnica: el usuario necesita regist
 
 ## Estructura del repositorio
 
-```
+```text
 /informe       → informe LaTeX (IEEE) de cada hito
 /prototipo     → proyecto Unity (a partir del Hito 2)
 README.md      → este archivo
 ```
 
-## Cómo compilar el informe
+## Informe
 
-El informe está en `/informe/hito1.tex`, escrito con la plantilla IEEE (`IEEEtran`). Se puede compilar directamente en [Overleaf](https://www.overleaf.com) subiendo el archivo, o localmente con `pdflatex` si tienen una instalación de TeX Live.
+El informe se encuentra en `/informe` (fuente LaTeX y PDF compilado).
