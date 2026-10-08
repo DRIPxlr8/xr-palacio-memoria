@@ -14,7 +14,7 @@ La app tiene tres modos, uno por caso de uso:
 | **CU2 · Estudio** | Recorre la sala; al tocar un marcador ve su definición. Botón "Siguiente término" para seguir el recorrido. |
 | **CU3 · Quiz** | Los marcadores muestran "?". Toca para revelar la definición, marca Acerté / No acerté y al final ve un resumen con los términos a repasar. |
 
-**Pantalla:** mitad superior con los controles y el contenido de cada modo; mitad inferior siempre con la vista de cámara. Los marcadores deben quedar fijos y estables al caminar, y su texto debe leerse desde cualquier ángulo.
+**Pantalla:** panel superior (40 % del alto) con los controles y el contenido de cada modo; abajo, siempre, la vista de cámara (60 %). Ver `docs/decisiones/001-proporcion-panel-camara.md`. Los marcadores deben quedar fijos y estables al caminar, y su texto debe leerse desde cualquier ángulo.
 
 **Alcance actual (Hito 2, prototipo lo-fi):** los tres modos funcionando de punta a punta en iPhone, con un glosario de prueba y elementos visuales simples (placeholders). Fuera de alcance por ahora: persistencia del palacio entre sesiones, oclusión, diseño visual final y soporte optimizado para iPad.
 
