@@ -10,7 +10,7 @@ Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2)
 
 ## Descripción del proyecto
 
-Los estudiantes de asignaturas con alta densidad de terminología técnica, como anatomía, farmacología o glosarios especializados de ingeniería, suelen estudiar con métodos lineales, como listas o tarjetas de memoria, que no aprovechan la memoria espacial. Este proyecto propone una aplicación de realidad aumentada que implementa la técnica del *palacio de la memoria* (*method of loci*). El estudiante ancla términos técnicos como objetos virtuales sobre su propio espacio físico y luego repasa y se autoevalúa recorriendo ese mismo espacio.
+Los estudiantes de asignaturas con alta densidad de terminología técnica, como anatomía, farmacología o glosarios especializados de ingeniería, suelen estudiar con métodos lineales, como listas o tarjetas de memoria, que no aprovechan la memoria espacial. Este proyecto propone una aplicación de realidad aumentada para iPhone que implementa la técnica del *palacio de la memoria* (*method of loci*). El estudiante ancla términos técnicos como marcadores virtuales sobre su propio espacio físico y luego repasa y se autoevalúa recorriendo ese mismo espacio.
 
 ## Por qué XR
 
@@ -18,14 +18,39 @@ La asociación espacial es el núcleo de la técnica. El usuario necesita regist
 
 ## Casos de uso
 
-1. **Anclar términos nuevos** — el usuario coloca objetos virtuales sobre superficies reales y asocia cada uno a un término y su definición.
-2. **Repasar en modo estudio** — el usuario recorre el espacio y consulta las definiciones ya ancladas.
-3. **Autoevaluarse en modo quiz** — el usuario recorre el espacio sin ver las etiquetas, intenta recordar la información y confirma tocando el objeto.
+1. **CU1 · Anclar** — el usuario toca una superficie detectada por la cámara, coloca un marcador virtual y le asocia un término y su definición.
+2. **CU2 · Estudio** — el usuario recorre el espacio y, al tocar un marcador, ve su definición.
+3. **CU3 · Quiz** — los marcadores muestran "?"; el usuario intenta recordar la definición, toca para revelarla y marca si acertó o no. Al final ve los términos a repasar.
 
-## Tecnologías
+## Stack
 
-- Unity + AR Foundation, con plugin ARKit
-- Dispositivo objetivo: iPad Pro 11" del laboratorio DILAB
+- Swift 6, SwiftUI, ARKit y RealityKit (sin Unity ni motores de terceros)
+- Plataforma objetivo: iPhone con iOS 17 o superior
+- Tests con Swift Testing
+- Lógica pura en el paquete SwiftPM `Packages/PalacioCore`, que solo depende de `Foundation` y compila en Windows, Linux y Mac
+
+## Requisitos
+
+- **App completa:** Mac con Xcode y un iPhone físico (el simulador no tiene cámara AR).
+- **PalacioCore (lógica y tests):** cualquier sistema con Swift 6 (Windows, Linux o Mac).
+
+## Tests de PalacioCore
+
+```bash
+cd Packages/PalacioCore
+swift build
+swift test
+```
+
+En Windows con Swift 6.4, si el build falla con `'stdlib.h' file not found`, agregar `--build-system native` a ambos comandos.
+
+## Instalación
+
+*Pendiente.*
+
+## Uso
+
+*Pendiente.*
 
 ## Estado actual
 
@@ -33,18 +58,20 @@ La asociación espacial es el núcleo de la técnica. El usuario necesita regist
 - [ ] Hito 2 — Prototipo lo-fi (13 de octubre de 2026)
 - [ ] Hito 3 — Prototipo final (24 de noviembre de 2026)
 
-## Control de versiones
-
-El informe se versiona en `/informe` a través del repositorio Git del equipo. A medida que el proyecto avanza entre hitos, el informe se actualiza sobre la misma base en lugar de reescribirse desde cero. Cada entrega queda marcada como un punto identificable en el historial, de modo que se pueda revisar cómo evolucionó el documento de un hito al siguiente.
-
 ## Estructura del repositorio
 
 ```text
-/informe       → informe LaTeX (IEEE) de cada hito
-/prototipo     → proyecto Unity (a partir del Hito 2)
-README.md      → este archivo
+PalacioMemoria/          → código de la app iOS (App, AR, Features, Shared, Resources)
+Packages/PalacioCore/    → lógica pura + tests
+docs/                    → arquitectura, registro de pruebas y decisiones
+Build/                   → ejecutable para instalar en iPhone
+informe/                 → informe (IEEE) de cada hito
+.github/                 → plantillas de issues/PR y CI
+CLAUDE.md                → guía de trabajo del repositorio
 ```
+
+La arquitectura se describe en [docs/arquitectura.md](docs/arquitectura.md).
 
 ## Informe
 
-El informe se encuentra en `/informe` (fuente LaTeX y PDF compilado).
+El informe se versiona en `/informe` (fuente LaTeX y PDF compilado). A medida que el proyecto avanza entre hitos, se actualiza sobre la misma base en lugar de reescribirse desde cero, y cada entrega queda marcada como un punto identificable en el historial.
