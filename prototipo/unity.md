@@ -1,1 +1,0 @@
-En esta carpeta irá el prototipo del proyecto

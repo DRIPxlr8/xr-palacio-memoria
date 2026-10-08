@@ -54,7 +54,7 @@ El rol B desarrolla desde **Windows**, sin Xcode. Por eso `PalacioCore`:
 ## Estructura del repositorio
 
 ```
-palacio-memoria-ar/
+xr-palacio-memoria/
 ├── PalacioMemoria.xcodeproj         # Proyecto de Xcode (se crea en Mac)
 ├── PalacioMemoria/                  # Código de la app (iOS)
 │   ├── App/        estado de la app, punto de entrada         (B)
