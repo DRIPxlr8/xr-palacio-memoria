@@ -42,6 +42,8 @@ swift build
 swift test
 ```
 
+En Windows con Swift 6.4, si el build falla con `'stdlib.h' file not found`, agregar `--build-system native` a ambos comandos.
+
 ## Instalación
 
 *Pendiente.*

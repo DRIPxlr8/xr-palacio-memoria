@@ -130,6 +130,11 @@ cd Packages/PalacioCore
 swift build
 swift test
 
+# En Windows con Swift 6.4, el build system por defecto no encuentra Visual Studio
+# ('stdlib.h' file not found). Usar el build system nativo:
+swift build --build-system native
+swift test --build-system native
+
 # App completa (solo Mac)
 xcodebuild -scheme PalacioMemoria -destination 'generic/platform=iOS' build
 ```
