@@ -19,19 +19,23 @@ public struct ARContainerView: UIViewRepresentable {
     public var onMarkerSelected: ((UUID) -> Void)?
     /// Avisa el marcador provisorio recién creado y su posición.
     public var onSurfaceTapped: ((UUID, simd_float4x4) -> Void)?
+    /// Avisa un toque que no cayó sobre un marcador ni creó uno nuevo (por ejemplo, en Estudio o Quiz).
+    public var onEmptyTapped: (() -> Void)?
 
     public init(
         isPlacementEnabled: Bool = true,
         pendingMarkerID: UUID? = nil,
         markerNames: [UUID: String] = [:],
         onMarkerSelected: ((UUID) -> Void)? = nil,
-        onSurfaceTapped: ((UUID, simd_float4x4) -> Void)? = nil
+        onSurfaceTapped: ((UUID, simd_float4x4) -> Void)? = nil,
+        onEmptyTapped: (() -> Void)? = nil
     ) {
         self.isPlacementEnabled = isPlacementEnabled
         self.pendingMarkerID = pendingMarkerID
         self.markerNames = markerNames
         self.onMarkerSelected = onMarkerSelected
         self.onSurfaceTapped = onSurfaceTapped
+        self.onEmptyTapped = onEmptyTapped
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -148,7 +152,10 @@ public struct ARContainerView: UIViewRepresentable {
 
             // B. Raycast contra planos físicos si no se tocó un marcador.
             // Solo en modo Anclar se crean marcadores.
-            guard parent.isPlacementEnabled else { return }
+            guard parent.isPlacementEnabled else {
+                parent.onEmptyTapped?()
+                return
+            }
 
             let results = arView.raycast(
                 from: tapLocation,
@@ -182,6 +189,8 @@ public struct ARContainerView: UIViewRepresentable {
                 // Avisar a la app el marcador creado. Si la app no lo registra como provisorio,
                 // se quita en la siguiente actualización.
                 parent.onSurfaceTapped?(markerId, transform)
+            } else {
+                parent.onEmptyTapped?()
             }
         }
     }
