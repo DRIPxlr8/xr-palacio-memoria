@@ -56,4 +56,13 @@ public struct Palace: Hashable, Sendable {
     public func term(forMarker markerID: UUID) -> Term? {
         terms.first { $0.markerID == markerID }
     }
+
+    /// Nombre del término de cada marcador fijado. Es lo que la capa AR muestra sobre cada uno.
+    public var namesByMarker: [UUID: String] {
+        terms.reduce(into: [:]) { names, term in
+            if let markerID = term.markerID {
+                names[markerID] = term.name
+            }
+        }
+    }
 }

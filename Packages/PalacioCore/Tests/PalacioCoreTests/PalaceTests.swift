@@ -156,3 +156,18 @@ func confirmPlacementWithIncompleteTermKeepsMarkerPending(name: String, definiti
 
     #expect(palace.term(forMarker: markerID) == nil)
 }
+
+@Test func namesByMarkerListsOnlyAnchoredTerms() {
+    let first = UUID()
+    let second = UUID()
+    var palace = makePalace(withTermNamed: "Anclaje", at: first)
+    palace.beginPlacement(markerID: second)
+    palace.confirmPlacement(name: "Raycast", definition: "Rayo desde la pantalla.")
+    palace.beginPlacement(markerID: UUID())
+
+    #expect(palace.namesByMarker == [first: "Anclaje", second: "Raycast"])
+}
+
+@Test func namesByMarkerIsEmptyForNewPalace() {
+    #expect(Palace().namesByMarker.isEmpty)
+}
