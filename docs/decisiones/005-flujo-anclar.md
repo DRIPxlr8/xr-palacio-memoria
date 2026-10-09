@@ -1,4 +1,4 @@
-# 002 · Flujo para anclar un término (CU1)
+# 005 · Flujo para anclar un término (CU1)
 
 - **Fecha:** 08-10-2026
 - **Paso:** 3 · CU1 Anclar

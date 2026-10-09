@@ -1,4 +1,5 @@
 import SwiftUI
+import PalacioCore
 
 /// Pantalla principal: arriba el selector y el panel del modo actual (40 %); abajo, siempre, la cámara AR (60 %).
 ///
@@ -11,10 +12,7 @@ struct MainView: View {
     /// La cámara usa el resto. Ver docs/decisiones/001-proporcion-panel-camara.md.
     private static let topPanelFraction: CGFloat = 0.4
 
-    // Provisorio: cuando exista el estado de la app (rol B), estos valores se leen y escriben ahí.
-    @State private var mode: AppMode = .anchor
-    /// El usuario tocó una superficie en modo Anclar y falta completar el término.
-    @State private var isPlacingTerm = false
+    @Environment(AppState.self) private var appState
 
     var body: some View {
         GeometryReader { proxy in
@@ -23,14 +21,15 @@ struct MainView: View {
                     .frame(height: proxy.size.height * Self.topPanelFraction)
 
                 ARContainerView(onSurfaceTapped: { _ in
-                    // Provisorio: el estado de la app (rol B) guardará la posición tocada.
-                    if mode == .anchor { isPlacingTerm = true }
+                    // Provisorio: la capa AR todavía no entrega el UUID del marcador que crea (rol A),
+                    // así que el término queda asociado a un identificador que no es el del marcador.
+                    appState.beginPlacement(markerID: UUID())
                 })
                 .ignoresSafeArea(edges: .bottom)
             }
         }
         // Si el usuario cambia de modo con el formulario abierto, el término se descarta.
-        .onChange(of: mode) { isPlacingTerm = false }
+        .onChange(of: appState.mode) { appState.cancelPlacement() }
         // Al escribir en el formulario de Anclar, el teclado se superpone a la cámara
         // en vez de achicar el panel.
         .ignoresSafeArea(.keyboard)
@@ -38,8 +37,10 @@ struct MainView: View {
 
     /// Panel superior: selector de modo y contenido del modo.
     private var topPanel: some View {
-        VStack(spacing: 0) {
-            ModeSelector(mode: $mode)
+        @Bindable var appState = appState
+
+        return VStack(spacing: 0) {
+            ModeSelector(mode: $appState.mode)
                 .padding(.horizontal)
                 .padding(.top, 8)
 
@@ -50,13 +51,15 @@ struct MainView: View {
 
     @ViewBuilder
     private var modePanel: some View {
-        switch mode {
+        switch appState.mode {
         case .anchor:
             AnchorPanel(
-                isPlacingTerm: isPlacingTerm,
-                glossary: TermDraft.samples, // Provisorio hasta el glosario de prueba (rol B).
-                onConfirm: { _ in isPlacingTerm = false },
-                onCancel: { isPlacingTerm = false }
+                isPlacingTerm: appState.isPlacingTerm,
+                glossary: appState.glossary.map { TermDraft(name: $0.name, definition: $0.definition) },
+                onConfirm: { draft in
+                    appState.confirmPlacement(name: draft.name, definition: draft.definition)
+                },
+                onCancel: { appState.cancelPlacement() }
             )
         case .study: StudyPanel()
         case .quiz: QuizPanel()
