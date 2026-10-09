@@ -27,11 +27,11 @@ Reglas de la lógica:
 ## Qué necesita cada rol
 
 - **B (hecho en este paso):** `Palace` con tests y las acciones en `AppState`.
-- **A:** que `onSurfaceTapped` entregue el `UUID` del marcador que crea. En `updateUIView`, quitar los marcadores que no estén en el estado y poner el nombre del término en vez de «Concepto».
-- **C:** en `MainView`, reemplazar los `@State` provisorios por `AppState`: `mode`, `isPlacingTerm`, el glosario (`appState.glossary` convertido a `TermDraft`), `confirmPlacement` en `onConfirm` y `cancelPlacement` en `onCancel` y al cambiar de modo.
+- **A (hecho en #17):** `onSurfaceTapped` entrega el `UUID` del marcador que crea. `ARContainerView` recibe el marcador pendiente y los nombres por marcador (`palace.namesByMarker`); en `updateUIView` quita los marcadores que no estén ahí y pone el nombre del término. Solo crea marcadores en modo Anclar.
+- **C (hecho en #14):** `MainView` usa `AppState` en vez de los `@State` provisorios: `mode`, `isPlacingTerm`, el glosario (`appState.glossary` convertido a `TermDraft`), `confirmPlacement` en `onConfirm` y `cancelPlacement` en `onCancel` y al cambiar de modo.
 
 ## Consecuencias
 
 - Toda la regla de anclar, cancelar y borrar se prueba con `swift test`, sin iPhone.
-- Mientras A y C no conecten su parte, el formulario sigue funcionando con los valores provisorios y los términos no se guardan.
+- La capa AR no recibe órdenes: si un marcador no aparece en el estado, lo quita en la siguiente actualización. Así cancelar, cambiar de modo y tocar otra superficie se resuelven igual.
 - Todavía no hay interfaz para borrar un término ya anclado; la acción queda disponible para cuando se defina.
