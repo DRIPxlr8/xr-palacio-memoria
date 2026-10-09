@@ -7,7 +7,7 @@
 
 ## Contexto
 
-El flujo para anclar ya está definido en `002-flujo-anclar.md`: tocar superficie → completar el término → fijar. Falta decidir qué guarda la lógica y cómo se enteran la capa AR y la interfaz.
+El flujo para anclar ya está definido en `005-flujo-anclar.md`: tocar superficie → completar el término → fijar. Falta decidir qué guarda la lógica y cómo se enteran la capa AR y la interfaz.
 
 Ese documento pedía que el estado de la app guardara el término con su posición. La posición es un tipo de ARKit, y PalacioCore no puede conocerlo.
 
