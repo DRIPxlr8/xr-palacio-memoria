@@ -11,8 +11,10 @@ struct MainView: View {
     /// La cámara usa el resto. Ver docs/decisiones/001-proporcion-panel-camara.md.
     private static let topPanelFraction: CGFloat = 0.4
 
-    // Provisorio: cuando exista el estado de la app (rol B), el modo se lee y escribe ahí.
+    // Provisorio: cuando exista el estado de la app (rol B), estos valores se leen y escriben ahí.
     @State private var mode: AppMode = .anchor
+    /// El usuario tocó una superficie en modo Anclar y falta completar el término.
+    @State private var isPlacingTerm = false
 
     var body: some View {
         GeometryReader { proxy in
@@ -20,11 +22,16 @@ struct MainView: View {
                 topPanel
                     .frame(height: proxy.size.height * Self.topPanelFraction)
 
-                ARContainerView()
-                    .ignoresSafeArea(edges: .bottom)
+                ARContainerView(onSurfaceTapped: { _ in
+                    // Provisorio: el estado de la app (rol B) guardará la posición tocada.
+                    if mode == .anchor { isPlacingTerm = true }
+                })
+                .ignoresSafeArea(edges: .bottom)
             }
         }
-        // Cuando aparezca el teclado (formulario del Paso 3), se superpone a la cámara
+        // Si el usuario cambia de modo con el formulario abierto, el término se descarta.
+        .onChange(of: mode) { isPlacingTerm = false }
+        // Al escribir en el formulario de Anclar, el teclado se superpone a la cámara
         // en vez de achicar el panel.
         .ignoresSafeArea(.keyboard)
     }
@@ -44,7 +51,13 @@ struct MainView: View {
     @ViewBuilder
     private var modePanel: some View {
         switch mode {
-        case .anchor: AnchorPanel()
+        case .anchor:
+            AnchorPanel(
+                isPlacingTerm: isPlacingTerm,
+                glossary: TermDraft.samples, // Provisorio hasta el glosario de prueba (rol B).
+                onConfirm: { _ in isPlacingTerm = false },
+                onCancel: { isPlacingTerm = false }
+            )
         case .study: StudyPanel()
         case .quiz: QuizPanel()
         }
