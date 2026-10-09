@@ -14,11 +14,13 @@ final class AppState {
     /// Términos disponibles para anclar.
     let glossary: [Term] = Glossary.sample
 
-    /// Término elegido: el del marcador que se tocó.
-    var selectedTerm: Term?
-
     /// Términos ya anclados y marcador que está por fijarse. Se modifica con las acciones de abajo.
     private(set) var palace = Palace()
+
+    /// Recorrido del modo Estudio sobre los términos anclados.
+    private(set) var studyTour = StudyTour()
+
+    // MARK: - Anclar (CU1)
 
     /// `true` cuando el usuario tocó una superficie y falta completar el término.
     var isPlacingTerm: Bool {
@@ -36,6 +38,7 @@ final class AppState {
     /// No hace nada si falta el nombre o la definición.
     func confirmPlacement(name: String, definition: String) {
         palace.confirmPlacement(name: name, definition: definition)
+        studyTour.update(terms: palace.terms)
     }
 
     /// Descarta el marcador provisorio: el usuario canceló o cambió de modo.
@@ -46,8 +49,30 @@ final class AppState {
     /// Borra un término ya anclado.
     func removeTerm(_ term: Term) {
         palace.removeTerm(id: term.id)
-        if selectedTerm?.id == term.id {
-            selectedTerm = nil
-        }
+        studyTour.update(terms: palace.terms)
+    }
+
+    // MARK: - Estudio (CU2)
+
+    /// Término que se está repasando en modo Estudio, si hay alguno.
+    var currentStudyTerm: Term? {
+        studyTour.current
+    }
+
+    /// Marcador que la capa AR debe resaltar: el del término que se repasa, solo en modo Estudio.
+    var highlightedMarkerID: UUID? {
+        mode == .study ? studyTour.current?.markerID : nil
+    }
+
+    /// La capa AR avisa que el usuario tocó un marcador.
+    /// En modo Estudio, su término pasa a ser el que se repasa.
+    func selectMarker(_ markerID: UUID) {
+        guard mode == .study else { return }
+        studyTour.select(markerID: markerID)
+    }
+
+    /// Botón «Siguiente término»: pasa al término que sigue en el recorrido.
+    func advanceStudy() {
+        studyTour.advance()
     }
 }
