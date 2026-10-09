@@ -20,11 +20,14 @@ struct MainView: View {
                 topPanel
                     .frame(height: proxy.size.height * Self.topPanelFraction)
 
-                ARContainerView(onSurfaceTapped: { _ in
-                    // Provisorio: la capa AR todavía no entrega el UUID del marcador que crea (rol A),
-                    // así que el término queda asociado a un identificador que no es el del marcador.
-                    appState.beginPlacement(markerID: UUID())
-                })
+                ARContainerView(
+                    isPlacementEnabled: appState.mode == .anchor,
+                    pendingMarkerID: appState.palace.pendingMarkerID,
+                    markerNames: appState.palace.namesByMarker,
+                    onSurfaceTapped: { markerID, _ in
+                        appState.beginPlacement(markerID: markerID)
+                    }
+                )
                 .ignoresSafeArea(edges: .bottom)
             }
         }
