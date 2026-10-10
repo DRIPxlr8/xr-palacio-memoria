@@ -14,6 +14,12 @@ struct MainView: View {
 
     @Environment(AppState.self) private var appState
 
+    // Provisorio: el estado del quiz y el puntaje los llevará la lógica de PalacioCore.
+    /// Respuestas del quiz por término (`true` si acertó).
+    @State private var quizResults: [Term.ID: Bool] = [:]
+    /// Si ya se reveló la respuesta del término preguntado.
+    @State private var isAnswerRevealed = false
+
     var body: some View {
         GeometryReader { proxy in
             VStack(spacing: 0) {
@@ -24,15 +30,25 @@ struct MainView: View {
                     isPlacementEnabled: appState.mode == .anchor,
                     pendingMarkerID: appState.palace.pendingMarkerID,
                     markerNames: appState.palace.namesByMarker,
+                    onMarkerSelected: { markerID in
+                        selectMarker(markerID)
+                    },
                     onSurfaceTapped: { markerID, _ in
                         appState.beginPlacement(markerID: markerID)
+                    },
+                    onEmptyTapped: {
+                        // Tocar fuera de un marcador cierra el término de Estudio o la pregunta del Quiz.
+                        closeSelection()
                     }
                 )
                 .ignoresSafeArea(edges: .bottom)
             }
         }
-        // Si el usuario cambia de modo con el formulario abierto, el término se descarta.
-        .onChange(of: appState.mode) { appState.cancelPlacement() }
+        // Al cambiar de modo se descarta el término a medio anclar y se cierra lo que estaba abierto.
+        .onChange(of: appState.mode) {
+            appState.cancelPlacement()
+            closeSelection()
+        }
         // Al escribir en el formulario de Anclar, el teclado se superpone a la cámara
         // en vez de achicar el panel.
         .ignoresSafeArea(.keyboard)
@@ -64,8 +80,63 @@ struct MainView: View {
                 },
                 onCancel: { appState.cancelPlacement() }
             )
-        case .study: StudyPanel()
-        case .quiz: QuizPanel()
+        case .study:
+            StudyPanel(
+                term: appState.selectedTerm,
+                total: appState.palace.terms.count
+            )
+        case .quiz:
+            QuizPanel(
+                phase: quizPhase,
+                onReveal: { isAnswerRevealed = true },
+                onAnswer: { isCorrect in
+                    if let term = appState.selectedTerm {
+                        quizResults[term.id] = isCorrect
+                    }
+                    closeSelection()
+                },
+                onRestart: { quizResults = [:] }
+            )
         }
+    }
+
+    /// El usuario tocó un marcador: en Estudio muestra su término; en Quiz lo pregunta
+    /// si todavía no lo respondió.
+    private func selectMarker(_ markerID: UUID) {
+        guard let term = appState.palace.term(forMarker: markerID) else { return }
+
+        switch appState.mode {
+        case .anchor:
+            break
+        case .study:
+            appState.selectedTerm = term
+        case .quiz:
+            guard quizResults[term.id] == nil else { return }
+            appState.selectedTerm = term
+            isAnswerRevealed = false
+        }
+    }
+
+    /// Cierra el término de Estudio o la pregunta abierta del Quiz.
+    private func closeSelection() {
+        appState.selectedTerm = nil
+        isAnswerRevealed = false
+    }
+
+    /// Provisorio: el estado del quiz y el puntaje los calculará la lógica de PalacioCore.
+    private var quizPhase: QuizPhase {
+        let terms = appState.palace.terms
+        if terms.isEmpty {
+            return .noTerms
+        }
+        if let term = appState.selectedTerm {
+            return .question(term, isRevealed: isAnswerRevealed)
+        }
+        let answered = terms.filter { quizResults[$0.id] != nil }.count
+        if answered == terms.count {
+            let toReview = terms.filter { quizResults[$0.id] == false }
+            return .finished(correct: terms.count - toReview.count, total: terms.count, toReview: toReview)
+        }
+        return .waiting(answered: answered, total: terms.count)
     }
 }
