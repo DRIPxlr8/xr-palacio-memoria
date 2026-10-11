@@ -17,11 +17,11 @@ final class AppState {
     /// Términos ya anclados y marcador que está por fijarse. Se modifica con las acciones de abajo.
     private(set) var palace = Palace()
 
-    /// Recorrido del modo Estudio sobre los términos anclados.
+    /// Recorrido guiado del modo Estudio: qué término buscar y cuál tiene la definición abierta.
     private(set) var studyTour = StudyTour()
 
-    /// Término abierto en el panel superior: el del marcador tocado en Estudio
-    /// o el que se está preguntando en Quiz.
+    /// Término que se está preguntando en modo Quiz.
+    /// Provisorio: pasa a la lógica del quiz de PalacioCore en el Paso 5.
     var selectedTerm: Term?
 
     // MARK: - Anclar (CU1)
@@ -61,24 +61,29 @@ final class AppState {
 
     // MARK: - Estudio (CU2)
 
-    /// Término que se está repasando en modo Estudio, si hay alguno.
-    var currentStudyTerm: Term? {
-        studyTour.current
-    }
-
-    /// Marcador que la capa AR debe resaltar: el del término que se repasa, solo en modo Estudio.
+    /// Marcador que la capa AR debe resaltar: el del término abierto en el panel.
+    /// Nunca es el del término buscado sin encontrar, para no delatar dónde está.
     var highlightedMarkerID: UUID? {
-        mode == .study ? studyTour.current?.markerID : nil
+        switch mode {
+        case .anchor: nil
+        case .study: studyTour.revealed?.markerID
+        case .quiz: selectedTerm?.markerID
+        }
     }
 
     /// La capa AR avisa que el usuario tocó un marcador.
-    /// En modo Estudio, su término pasa a ser el que se repasa.
+    /// En modo Estudio se abre la definición de su término.
     func selectMarker(_ markerID: UUID) {
         guard mode == .study else { return }
         studyTour.select(markerID: markerID)
     }
 
-    /// Botón «Siguiente término»: pasa al término que sigue en el recorrido.
+    /// Cierra la definición abierta en modo Estudio. El término buscado sigue siendo el mismo.
+    func dismissStudyTerm() {
+        studyTour.dismiss()
+    }
+
+    /// Botón «Siguiente término»: pasa a buscar el término que sigue en el recorrido.
     func advanceStudy() {
         studyTour.advance()
     }

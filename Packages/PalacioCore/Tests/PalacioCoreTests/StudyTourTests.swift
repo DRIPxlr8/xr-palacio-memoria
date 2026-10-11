@@ -7,42 +7,121 @@ private func makeTerms(_ names: String...) -> [Term] {
     names.map { Term(name: $0, definition: "Definición de \($0).", markerID: UUID()) }
 }
 
-@Test func newTourHasNoCurrentTerm() {
-    let tour = StudyTour(terms: makeTerms("Anclaje", "Raycast"))
+/// Marcador de un término de prueba.
+private func marker(of term: Term) throws -> UUID {
+    try #require(term.markerID)
+}
 
-    #expect(tour.current == nil)
+// MARK: - Inicio
+
+@Test func emptyTourHasNoTarget() {
+    var tour = StudyTour()
+
+    let next = tour.advance()
+
+    #expect(next == nil)
+    #expect(tour.target == nil)
+    #expect(tour.revealed == nil)
     #expect(tour.position == nil)
+    #expect(tour.count == 0)
+    #expect(!tour.isTargetFound)
+}
+
+@Test func newTourTargetsFirstTermWithoutRevealingIt() {
+    let terms = makeTerms("Anclaje", "Raycast")
+
+    let tour = StudyTour(terms: terms)
+
+    #expect(tour.target == terms[0])
+    #expect(tour.revealed == nil)
+    #expect(!tour.isTargetFound)
+    #expect(tour.position == 1)
     #expect(tour.count == 2)
 }
 
-@Test func emptyTourHasNothingToAdvanceTo() {
-    var tour = StudyTour()
+// MARK: - Tocar marcadores
 
-    let term = tour.advance()
-
-    #expect(term == nil)
-    #expect(tour.current == nil)
-    #expect(tour.count == 0)
-}
-
-@Test func firstAdvanceStartsAtFirstTerm() {
+@Test func selectingTargetMarkerRevealsItAndMarksItFound() throws {
     let terms = makeTerms("Anclaje", "Raycast")
     var tour = StudyTour(terms: terms)
 
-    let term = tour.advance()
+    let term = tour.select(markerID: try marker(of: terms[0]))
 
     #expect(term == terms[0])
-    #expect(tour.current == terms[0])
-    #expect(tour.position == 1)
+    #expect(tour.revealed == terms[0])
+    #expect(tour.isTargetFound)
 }
 
-@Test func advanceFollowsTheOrderOfTheTerms() {
+@Test func selectingAnotherMarkerRevealsItButKeepsTarget() throws {
     let terms = makeTerms("Anclaje", "Raycast", "Oclusión")
     var tour = StudyTour(terms: terms)
 
-    let visited = (0..<3).map { _ in tour.advance()?.name }
+    let term = tour.select(markerID: try marker(of: terms[2]))
 
-    #expect(visited == ["Anclaje", "Raycast", "Oclusión"])
+    #expect(term == terms[2])
+    #expect(tour.revealed == terms[2])
+    #expect(tour.target == terms[0])
+    #expect(!tour.isTargetFound)
+}
+
+@Test func selectingTargetAfterAnotherMarkerMarksItFound() throws {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour(terms: terms)
+    tour.select(markerID: try marker(of: terms[1]))
+
+    tour.select(markerID: try marker(of: terms[0]))
+
+    #expect(tour.revealed == terms[0])
+    #expect(tour.isTargetFound)
+}
+
+@Test func selectingUnknownMarkerChangesNothing() throws {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour(terms: terms)
+    tour.select(markerID: try marker(of: terms[1]))
+
+    let term = tour.select(markerID: UUID())
+
+    #expect(term == nil)
+    #expect(tour.revealed == terms[1])
+    #expect(tour.target == terms[0])
+}
+
+@Test func dismissClosesDefinitionAndKeepsTarget() throws {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour(terms: terms)
+    tour.select(markerID: try marker(of: terms[0]))
+
+    tour.dismiss()
+
+    #expect(tour.revealed == nil)
+    #expect(!tour.isTargetFound)
+    #expect(tour.target == terms[0])
+}
+
+// MARK: - Avanzar
+
+@Test func advanceTargetsNextTermAndClosesDefinition() throws {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour(terms: terms)
+    tour.select(markerID: try marker(of: terms[0]))
+
+    let next = tour.advance()
+
+    #expect(next == terms[1])
+    #expect(tour.target == terms[1])
+    #expect(tour.revealed == nil)
+    #expect(!tour.isTargetFound)
+    #expect(tour.position == 2)
+}
+
+@Test func advanceFollowsTheOrderOfTheTerms() {
+    var tour = StudyTour(terms: makeTerms("Anclaje", "Raycast", "Oclusión"))
+
+    let first = tour.target?.name
+    let rest = (0..<2).map { _ in tour.advance()?.name }
+
+    #expect([first] + rest == ["Anclaje", "Raycast", "Oclusión"])
     #expect(tour.position == 3)
 }
 
@@ -50,93 +129,89 @@ private func makeTerms(_ names: String...) -> [Term] {
     let terms = makeTerms("Anclaje", "Raycast")
     var tour = StudyTour(terms: terms)
     tour.advance()
-    tour.advance()
 
-    let term = tour.advance()
+    let next = tour.advance()
 
-    #expect(term == terms[0])
+    #expect(next == terms[0])
     #expect(tour.position == 1)
 }
 
-@Test func tourWithOneTermStaysOnIt() {
+@Test func advanceWithoutFindingTargetSkipsIt() {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour(terms: terms)
+
+    tour.advance()
+
+    #expect(tour.target == terms[1])
+}
+
+@Test func tourWithOneTermKeepsTargetingIt() throws {
     let terms = makeTerms("Anclaje")
     var tour = StudyTour(terms: terms)
+    tour.select(markerID: try marker(of: terms[0]))
 
     tour.advance()
-    tour.advance()
 
-    #expect(tour.current == terms[0])
+    #expect(tour.target == terms[0])
+    #expect(tour.revealed == nil)
     #expect(tour.position == 1)
 }
 
-@Test func selectMarkerMakesItsTermCurrent() throws {
-    let terms = makeTerms("Anclaje", "Raycast", "Oclusión")
-    var tour = StudyTour(terms: terms)
-    let markerID = try #require(terms[2].markerID)
+// MARK: - Cambios en los términos
 
-    let term = tour.select(markerID: markerID)
+@Test func updateOnEmptyTourTargetsFirstTerm() {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour()
 
-    #expect(term == terms[2])
-    #expect(tour.current == terms[2])
-    #expect(tour.position == 3)
+    tour.update(terms: terms)
+
+    #expect(tour.target == terms[0])
+    #expect(tour.count == 2)
 }
 
-@Test func advanceContinuesFromSelectedTerm() throws {
-    let terms = makeTerms("Anclaje", "Raycast", "Oclusión")
-    var tour = StudyTour(terms: terms)
-    let markerID = try #require(terms[1].markerID)
-    tour.select(markerID: markerID)
-
-    let term = tour.advance()
-
-    #expect(term == terms[2])
-}
-
-@Test func selectUnknownMarkerKeepsCurrentTerm() {
+@Test func updateKeepsTargetAndRevealedWhenTheyStillExist() throws {
     let terms = makeTerms("Anclaje", "Raycast")
     var tour = StudyTour(terms: terms)
     tour.advance()
+    tour.select(markerID: try marker(of: terms[1]))
 
-    let term = tour.select(markerID: UUID())
+    tour.update(terms: terms + makeTerms("Oclusión"))
 
-    #expect(term == nil)
-    #expect(tour.current == terms[0])
-}
-
-@Test func updateKeepsCurrentTermWhenItStillExists() {
-    let terms = makeTerms("Anclaje", "Raycast")
-    var tour = StudyTour(terms: terms)
-    tour.advance()
-    tour.advance()
-
-    tour.update(terms: makeTerms("Oclusión") + terms)
-
-    #expect(tour.current == terms[1])
-    #expect(tour.position == 3)
+    #expect(tour.target == terms[1])
+    #expect(tour.revealed == terms[1])
+    #expect(tour.isTargetFound)
+    #expect(tour.position == 2)
     #expect(tour.count == 3)
 }
 
-@Test func updateClearsCurrentTermWhenItWasRemoved() {
-    let terms = makeTerms("Anclaje", "Raycast")
+@Test func updateRestartsAtFirstTermWhenTargetWasRemoved() {
+    let terms = makeTerms("Anclaje", "Raycast", "Oclusión")
     var tour = StudyTour(terms: terms)
     tour.advance()
 
-    tour.update(terms: [terms[1]])
+    tour.update(terms: [terms[0], terms[2]])
 
-    #expect(tour.current == nil)
-    #expect(tour.position == nil)
-    #expect(tour.count == 1)
+    #expect(tour.target == terms[0])
+    #expect(tour.position == 1)
 }
 
-@Test func updateWithoutCurrentTermOnlyReplacesTerms() {
+@Test func updateClosesDefinitionWhenItsTermWasRemoved() throws {
+    let terms = makeTerms("Anclaje", "Raycast")
+    var tour = StudyTour(terms: terms)
+    tour.select(markerID: try marker(of: terms[1]))
+
+    tour.update(terms: [terms[0]])
+
+    #expect(tour.revealed == nil)
+    #expect(tour.target == terms[0])
+}
+
+@Test func updateWithNoTermsLeavesTourEmpty() {
     var tour = StudyTour(terms: makeTerms("Anclaje"))
 
-    tour.update(terms: makeTerms("Raycast", "Oclusión"))
+    tour.update(terms: [])
 
-    #expect(tour.current == nil)
-    #expect(tour.count == 2)
-
-    let term = tour.advance()
-
-    #expect(term?.name == "Raycast")
+    #expect(tour.target == nil)
+    #expect(tour.revealed == nil)
+    #expect(tour.count == 0)
 }
