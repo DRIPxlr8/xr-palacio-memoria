@@ -14,6 +14,8 @@ public struct ARContainerView: UIViewRepresentable {
     public var pendingMarkerID: UUID?
     /// Nombre del término de cada marcador fijado.
     public var markerNames: [UUID: String]
+    /// Marcador que se muestra resaltado, si lo hay.
+    public var highlightedMarkerID: UUID?
 
     // Callbacks limpios para conectar con AppState / UI sin acoplar dependencias
     public var onMarkerSelected: ((UUID) -> Void)?
@@ -26,6 +28,7 @@ public struct ARContainerView: UIViewRepresentable {
         isPlacementEnabled: Bool = true,
         pendingMarkerID: UUID? = nil,
         markerNames: [UUID: String] = [:],
+        highlightedMarkerID: UUID? = nil,
         onMarkerSelected: ((UUID) -> Void)? = nil,
         onSurfaceTapped: ((UUID, simd_float4x4) -> Void)? = nil,
         onEmptyTapped: (() -> Void)? = nil
@@ -33,6 +36,7 @@ public struct ARContainerView: UIViewRepresentable {
         self.isPlacementEnabled = isPlacementEnabled
         self.pendingMarkerID = pendingMarkerID
         self.markerNames = markerNames
+        self.highlightedMarkerID = highlightedMarkerID
         self.onMarkerSelected = onMarkerSelected
         self.onSurfaceTapped = onSurfaceTapped
         self.onEmptyTapped = onEmptyTapped
@@ -85,6 +89,8 @@ public struct ARContainerView: UIViewRepresentable {
         var markers: [UUID: AnchorEntity] = [:]
         /// Texto que muestra hoy cada marcador, para regenerar la etiqueta solo cuando cambia.
         var shownLabels: [UUID: String] = [:]
+        /// Marcador que hoy se ve resaltado.
+        var shownHighlightID: UUID?
 
         init(_ parent: ARContainerView) {
             self.parent = parent
@@ -105,6 +111,30 @@ public struct ARContainerView: UIViewRepresentable {
                 if shownLabels[markerID] != text {
                     setLabel(text, on: anchor)
                     shownLabels[markerID] = text
+                }
+            }
+
+            syncHighlight()
+        }
+
+        /// Deja resaltado solo el marcador que indica la app.
+        private func syncHighlight() {
+            guard shownHighlightID != parent.highlightedMarkerID else { return }
+
+            if let previousID = shownHighlightID, let anchor = markers[previousID] {
+                setSphereColor(.systemBlue, on: anchor)
+            }
+            if let currentID = parent.highlightedMarkerID, let anchor = markers[currentID] {
+                setSphereColor(.systemGreen, on: anchor)
+            }
+            shownHighlightID = parent.highlightedMarkerID
+        }
+
+        /// Cambia el color de la esfera del marcador, sin tocar su etiqueta.
+        private func setSphereColor(_ color: UIColor, on anchor: AnchorEntity) {
+            for child in anchor.children where child.name != Self.labelEntityName {
+                if let sphere = child as? ModelEntity {
+                    sphere.model?.materials = [SimpleMaterial(color: color, isMetallic: false)]
                 }
             }
         }
@@ -139,13 +169,9 @@ public struct ARContainerView: UIViewRepresentable {
                 if let idString = markerRoot.name.components(separatedBy: "_").last,
                    let markerId = UUID(uuidString: idString) {
 
-                    // Notificar a la app mediante el callback
+                    // Notificar a la app mediante el callback. El resaltado lo decide la app
+                    // y se aplica en la siguiente actualización (ver syncHighlight).
                     parent.onMarkerSelected?(markerId)
-
-                    // Feedback visual en la esfera
-                    if let modelEntity = hitEntity as? ModelEntity {
-                        modelEntity.model?.materials = [SimpleMaterial(color: .systemGreen, isMetallic: false)]
-                    }
                     return
                 }
             }
