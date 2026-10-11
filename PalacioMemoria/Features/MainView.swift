@@ -30,6 +30,7 @@ struct MainView: View {
                     isPlacementEnabled: appState.mode == .anchor,
                     pendingMarkerID: appState.palace.pendingMarkerID,
                     markerNames: appState.palace.namesByMarker,
+                    highlightedMarkerID: appState.highlightedMarkerID,
                     onMarkerSelected: { markerID in
                         selectMarker(markerID)
                     },
@@ -37,7 +38,7 @@ struct MainView: View {
                         appState.beginPlacement(markerID: markerID)
                     },
                     onEmptyTapped: {
-                        // Tocar fuera de un marcador cierra el término de Estudio o la pregunta del Quiz.
+                        // Tocar fuera de un marcador cierra la definición de Estudio o la pregunta del Quiz.
                         closeSelection()
                     }
                 )
@@ -82,8 +83,11 @@ struct MainView: View {
             )
         case .study:
             StudyPanel(
-                term: appState.selectedTerm,
-                total: appState.palace.terms.count
+                target: appState.studyTour.target,
+                revealed: appState.studyTour.revealed,
+                position: appState.studyTour.position,
+                total: appState.studyTour.count,
+                onNext: { appState.advanceStudy() }
             )
         case .quiz:
             QuizPanel(
@@ -100,7 +104,7 @@ struct MainView: View {
         }
     }
 
-    /// El usuario tocó un marcador: en Estudio muestra su término; en Quiz lo pregunta
+    /// El usuario tocó un marcador: en Estudio abre la definición de su término; en Quiz lo pregunta
     /// si todavía no lo respondió.
     private func selectMarker(_ markerID: UUID) {
         guard let term = appState.palace.term(forMarker: markerID) else { return }
@@ -109,7 +113,7 @@ struct MainView: View {
         case .anchor:
             break
         case .study:
-            appState.selectedTerm = term
+            appState.selectMarker(markerID)
         case .quiz:
             guard quizResults[term.id] == nil else { return }
             appState.selectedTerm = term
@@ -117,8 +121,9 @@ struct MainView: View {
         }
     }
 
-    /// Cierra el término de Estudio o la pregunta abierta del Quiz.
+    /// Cierra la definición abierta en Estudio o la pregunta abierta del Quiz.
     private func closeSelection() {
+        appState.dismissStudyTerm()
         appState.selectedTerm = nil
         isAnswerRevealed = false
     }

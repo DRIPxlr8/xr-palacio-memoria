@@ -1,43 +1,54 @@
 import SwiftUI
 import PalacioCore
 
-/// Panel del modo Estudio (CU2).
+/// Panel del modo Estudio (CU2): recorrido guiado.
 ///
-/// Sin términos anclados invita a ir a Anclar. Con términos, pide acercarse a un marcador
-/// y tocarlo; al hacerlo muestra el término y su definición.
+/// Sin términos anclados invita a ir a Anclar. Con términos, dice cuál buscar; el usuario
+/// recuerda dónde lo dejó, se acerca y toca su marcador, y entonces se muestra la definición.
 struct StudyPanel: View {
-    /// Término del marcador tocado, o `nil` si todavía no se toca ninguno.
-    let term: Term?
+    /// Término que el usuario tiene que buscar, o `nil` si no hay términos anclados.
+    let target: Term?
+    /// Término del marcador tocado, con la definición abierta, o `nil` si no hay ninguno abierto.
+    let revealed: Term?
+    /// Posición del término buscado en el recorrido, partiendo en 1.
+    let position: Int?
     /// Cantidad de términos anclados.
     let total: Int
+    /// El usuario pide pasar al siguiente término.
+    let onNext: () -> Void
 
     var body: some View {
-        if let term {
-            StudyTermCard(term: term)
-        } else if total == 0 {
+        if let revealed {
+            StudyTermCard(
+                term: revealed,
+                isTarget: revealed.id == target?.id,
+                targetName: target?.name,
+                onNext: onNext
+            )
+        } else if let target {
+            StudyTargetPrompt(term: target, position: position, total: total, onSkip: onNext)
+        } else {
             ContentUnavailableView {
                 Label("Tu palacio está vacío", systemImage: AppMode.study.systemImage)
             } description: {
                 Text("Ancla términos en el modo Anclar para poder recorrerlos.")
-            }
-        } else {
-            ContentUnavailableView {
-                Label("Recorre tu palacio", systemImage: AppMode.study.systemImage)
-            } description: {
-                Text("Acércate a un marcador y tócalo para ver su definición.")
             }
         }
     }
 }
 
 #Preview("Sin términos") {
-    StudyPanel(term: nil, total: 0)
+    StudyPanel(target: nil, revealed: nil, position: nil, total: 0, onNext: {})
 }
 
-#Preview("Esperando un marcador") {
-    StudyPanel(term: nil, total: 3)
+#Preview("Buscando un término") {
+    StudyPanel(target: Glossary.sample[0], revealed: nil, position: 1, total: 3, onNext: {})
 }
 
-#Preview("Con término") {
-    StudyPanel(term: Glossary.sample[0], total: 3)
+#Preview("Término encontrado") {
+    StudyPanel(target: Glossary.sample[0], revealed: Glossary.sample[0], position: 1, total: 3, onNext: {})
+}
+
+#Preview("Otro término") {
+    StudyPanel(target: Glossary.sample[0], revealed: Glossary.sample[3], position: 1, total: 3, onNext: {})
 }
