@@ -20,6 +20,10 @@ final class AppState {
     /// Recorrido del modo Estudio sobre los términos anclados.
     private(set) var studyTour = StudyTour()
 
+    /// Término abierto en el panel superior: el del marcador tocado en Estudio
+    /// o el que se está preguntando en Quiz.
+    var selectedTerm: Term?
+
     // MARK: - Anclar (CU1)
 
     /// `true` cuando el usuario tocó una superficie y falta completar el término.
@@ -50,6 +54,9 @@ final class AppState {
     func removeTerm(_ term: Term) {
         palace.removeTerm(id: term.id)
         studyTour.update(terms: palace.terms)
+        if selectedTerm?.id == term.id {
+            selectedTerm = nil
+        }
     }
 
     // MARK: - Estudio (CU2)
