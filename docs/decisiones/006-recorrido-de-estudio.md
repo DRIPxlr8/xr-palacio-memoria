@@ -30,12 +30,12 @@ Reglas:
 
 ## Cómo quedó en cada rol
 
-- **B:** `StudyTour` (PalacioCore) lleva el término buscado (`target`), el que tiene la definición abierta (`revealed`) y si ya se encontró (`isTargetFound`). `AppState` expone `studyTour`, `selectMarker(_:)`, `dismissStudyTerm()`, `advanceStudy()` y `highlightedMarkerID`.
+- **B:** `StudyTour` (PalacioCore) lleva el término buscado (`target`), el que tiene la definición abierta (`revealed`) y si ya se encontró (`isTargetFound`). `AppState` expone `studyTour`, `selectMarker(_:)`, `closeOpenTerm()`, `advanceStudy()` y `markerStyles`.
 - **C:** `StudyPanel` muestra `StudyTargetPrompt` (qué buscar) o `StudyTermCard` (definición, con «Siguiente término» si era el buscado).
-- **A:** `ARContainerView` recibe `highlightedMarkerID` y pinta de verde solo ese marcador. Ya no deja verde cada marcador tocado.
+- **A:** `ARContainerView` recibe `markerStyles` y destaca solo el marcador con la definición abierta (amarillo desde el Paso 5; ver `007-quiz.md`). Ya no deja marcado cada marcador tocado.
 
 ## Consecuencias
 
 - El orden no depende de dónde está parado el estudiante: el siguiente término puede estar al otro lado de la sala. Es parte del ejercicio.
 - Los marcadores siguen mostrando el nombre del término sobre la esfera, así que de cerca se puede leer cuál es cuál. El ejercicio de memoria es llegar al lugar correcto; ocultar los nombres en este modo queda como posible mejora.
-- En modo Quiz, el resaltado marca el término que se está preguntando, de forma provisoria. Los colores por acierto y error son del Paso 5.
+- En modo Quiz los colores siguen otra regla; ver `007-quiz.md`.

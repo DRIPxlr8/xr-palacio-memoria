@@ -12,10 +12,10 @@ public struct ARContainerView: UIViewRepresentable {
     public var isPlacementEnabled: Bool
     /// Marcador provisorio que espera su término, si lo hay.
     public var pendingMarkerID: UUID?
-    /// Nombre del término de cada marcador fijado.
+    /// Texto de cada marcador fijado: el nombre del término o, en Quiz, «?».
     public var markerNames: [UUID: String]
-    /// Marcador que se muestra resaltado, si lo hay.
-    public var highlightedMarkerID: UUID?
+    /// Marcadores que se muestran con un aspecto distinto del normal.
+    public var markerStyles: [UUID: MarkerStyle]
 
     // Callbacks limpios para conectar con AppState / UI sin acoplar dependencias
     public var onMarkerSelected: ((UUID) -> Void)?
@@ -28,7 +28,7 @@ public struct ARContainerView: UIViewRepresentable {
         isPlacementEnabled: Bool = true,
         pendingMarkerID: UUID? = nil,
         markerNames: [UUID: String] = [:],
-        highlightedMarkerID: UUID? = nil,
+        markerStyles: [UUID: MarkerStyle] = [:],
         onMarkerSelected: ((UUID) -> Void)? = nil,
         onSurfaceTapped: ((UUID, simd_float4x4) -> Void)? = nil,
         onEmptyTapped: (() -> Void)? = nil
@@ -36,7 +36,7 @@ public struct ARContainerView: UIViewRepresentable {
         self.isPlacementEnabled = isPlacementEnabled
         self.pendingMarkerID = pendingMarkerID
         self.markerNames = markerNames
-        self.highlightedMarkerID = highlightedMarkerID
+        self.markerStyles = markerStyles
         self.onMarkerSelected = onMarkerSelected
         self.onSurfaceTapped = onSurfaceTapped
         self.onEmptyTapped = onEmptyTapped
@@ -89,8 +89,8 @@ public struct ARContainerView: UIViewRepresentable {
         var markers: [UUID: AnchorEntity] = [:]
         /// Texto que muestra hoy cada marcador, para regenerar la etiqueta solo cuando cambia.
         var shownLabels: [UUID: String] = [:]
-        /// Marcador que hoy se ve resaltado.
-        var shownHighlightID: UUID?
+        /// Aspecto con que hoy se ve cada marcador que no va con su color normal.
+        var shownStyles: [UUID: MarkerStyle] = [:]
 
         init(_ parent: ARContainerView) {
             self.parent = parent
@@ -105,6 +105,7 @@ public struct ARContainerView: UIViewRepresentable {
                     arView?.scene.removeAnchor(anchor)
                     markers[markerID] = nil
                     shownLabels[markerID] = nil
+                    shownStyles[markerID] = nil
                     continue
                 }
 
@@ -114,20 +115,29 @@ public struct ARContainerView: UIViewRepresentable {
                 }
             }
 
-            syncHighlight()
+            syncStyles()
         }
 
-        /// Deja resaltado solo el marcador que indica la app.
-        private func syncHighlight() {
-            guard shownHighlightID != parent.highlightedMarkerID else { return }
+        /// Pinta cada marcador según el aspecto que indica la app.
+        private func syncStyles() {
+            for (markerID, anchor) in markers {
+                let style = parent.markerStyles[markerID]
+                if shownStyles[markerID] != style {
+                    setSphereColor(Self.color(for: style), on: anchor)
+                    shownStyles[markerID] = style
+                }
+            }
+        }
 
-            if let previousID = shownHighlightID, let anchor = markers[previousID] {
-                setSphereColor(.systemBlue, on: anchor)
+        /// Color de la esfera para cada aspecto. Sin aspecto, el color normal.
+        private static func color(for style: MarkerStyle?) -> UIColor {
+            guard let style else { return .systemBlue }
+
+            switch style {
+            case .selected: return .systemYellow
+            case .correct: return .systemGreen
+            case .incorrect: return .systemRed
             }
-            if let currentID = parent.highlightedMarkerID, let anchor = markers[currentID] {
-                setSphereColor(.systemGreen, on: anchor)
-            }
-            shownHighlightID = parent.highlightedMarkerID
         }
 
         /// Cambia el color de la esfera del marcador, sin tocar su etiqueta.
@@ -169,8 +179,8 @@ public struct ARContainerView: UIViewRepresentable {
                 if let idString = markerRoot.name.components(separatedBy: "_").last,
                    let markerId = UUID(uuidString: idString) {
 
-                    // Notificar a la app mediante el callback. El resaltado lo decide la app
-                    // y se aplica en la siguiente actualización (ver syncHighlight).
+                    // Notificar a la app mediante el callback. El color lo decide la app
+                    // y se aplica en la siguiente actualización (ver syncStyles).
                     parent.onMarkerSelected?(markerId)
                     return
                 }

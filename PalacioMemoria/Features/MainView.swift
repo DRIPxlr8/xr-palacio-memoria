@@ -14,12 +14,6 @@ struct MainView: View {
 
     @Environment(AppState.self) private var appState
 
-    // Provisorio: el estado del quiz y el puntaje los llevará la lógica de PalacioCore.
-    /// Respuestas del quiz por término (`true` si acertó).
-    @State private var quizResults: [Term.ID: Bool] = [:]
-    /// Si ya se reveló la respuesta del término preguntado.
-    @State private var isAnswerRevealed = false
-
     var body: some View {
         GeometryReader { proxy in
             VStack(spacing: 0) {
@@ -29,17 +23,17 @@ struct MainView: View {
                 ARContainerView(
                     isPlacementEnabled: appState.mode == .anchor,
                     pendingMarkerID: appState.palace.pendingMarkerID,
-                    markerNames: appState.palace.namesByMarker,
-                    highlightedMarkerID: appState.highlightedMarkerID,
+                    markerNames: appState.markerLabels,
+                    markerStyles: appState.markerStyles,
                     onMarkerSelected: { markerID in
-                        selectMarker(markerID)
+                        appState.selectMarker(markerID)
                     },
                     onSurfaceTapped: { markerID, _ in
                         appState.beginPlacement(markerID: markerID)
                     },
                     onEmptyTapped: {
                         // Tocar fuera de un marcador cierra la definición de Estudio o la pregunta del Quiz.
-                        closeSelection()
+                        appState.closeOpenTerm()
                     }
                 )
                 .ignoresSafeArea(edges: .bottom)
@@ -48,7 +42,7 @@ struct MainView: View {
         // Al cambiar de modo se descarta el término a medio anclar y se cierra lo que estaba abierto.
         .onChange(of: appState.mode) {
             appState.cancelPlacement()
-            closeSelection()
+            appState.closeOpenTerm()
         }
         // Al escribir en el formulario de Anclar, el teclado se superpone a la cámara
         // en vez de achicar el panel.
@@ -91,57 +85,11 @@ struct MainView: View {
             )
         case .quiz:
             QuizPanel(
-                phase: quizPhase,
-                onReveal: { isAnswerRevealed = true },
-                onAnswer: { isCorrect in
-                    if let term = appState.selectedTerm {
-                        quizResults[term.id] = isCorrect
-                    }
-                    closeSelection()
-                },
-                onRestart: { quizResults = [:] }
+                phase: appState.quiz.phase,
+                onReveal: { appState.revealQuizAnswer() },
+                onAnswer: { isCorrect in appState.answerQuiz(isCorrect: isCorrect) },
+                onRestart: { appState.restartQuiz() }
             )
         }
-    }
-
-    /// El usuario tocó un marcador: en Estudio abre la definición de su término; en Quiz lo pregunta
-    /// si todavía no lo respondió.
-    private func selectMarker(_ markerID: UUID) {
-        guard let term = appState.palace.term(forMarker: markerID) else { return }
-
-        switch appState.mode {
-        case .anchor:
-            break
-        case .study:
-            appState.selectMarker(markerID)
-        case .quiz:
-            guard quizResults[term.id] == nil else { return }
-            appState.selectedTerm = term
-            isAnswerRevealed = false
-        }
-    }
-
-    /// Cierra la definición abierta en Estudio o la pregunta abierta del Quiz.
-    private func closeSelection() {
-        appState.dismissStudyTerm()
-        appState.selectedTerm = nil
-        isAnswerRevealed = false
-    }
-
-    /// Provisorio: el estado del quiz y el puntaje los calculará la lógica de PalacioCore.
-    private var quizPhase: QuizPhase {
-        let terms = appState.palace.terms
-        if terms.isEmpty {
-            return .noTerms
-        }
-        if let term = appState.selectedTerm {
-            return .question(term, isRevealed: isAnswerRevealed)
-        }
-        let answered = terms.filter { quizResults[$0.id] != nil }.count
-        if answered == terms.count {
-            let toReview = terms.filter { quizResults[$0.id] == false }
-            return .finished(correct: terms.count - toReview.count, total: terms.count, toReview: toReview)
-        }
-        return .waiting(answered: answered, total: terms.count)
     }
 }
