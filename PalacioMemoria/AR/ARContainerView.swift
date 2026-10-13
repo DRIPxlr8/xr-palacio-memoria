@@ -1,6 +1,7 @@
 import SwiftUI
 import RealityKit
 import ARKit
+import Combine
 
 /// Vista de cámara AR. Muestra un marcador por cada término anclado y uno provisorio
 /// mientras el usuario completa el término.
@@ -54,6 +55,7 @@ public struct ARContainerView: UIViewRepresentable {
         arView.session.run(config)
 
         context.coordinator.arView = arView
+        context.coordinator.setupSceneSubscription()
 
         // 1. Coaching Overlay de ARKit para guiar al usuario en la detección de superficies
         let coachingOverlay = ARCoachingOverlayView()
@@ -81,7 +83,7 @@ public struct ARContainerView: UIViewRepresentable {
     public class Coordinator: NSObject {
         /// Texto del marcador provisorio, mientras no tiene término.
         static let pendingLabel = "Nuevo término"
-        /// Nombre de la entidad de texto dentro de cada marcador.
+        /// Nombre de la entidad contenedora de texto dentro de cada marcador.
         static let labelEntityName = "label"
 
         var parent: ARContainerView
@@ -91,9 +93,37 @@ public struct ARContainerView: UIViewRepresentable {
         var shownLabels: [UUID: String] = [:]
         /// Aspecto con que hoy se ve cada marcador que no va con su color normal.
         var shownStyles: [UUID: MarkerStyle] = [:]
+        /// Suscripción al ciclo de render para orientar etiquetas hacia la cámara.
+        private var updateSubscription: (any Cancellable)?
 
         init(_ parent: ARContainerView) {
             self.parent = parent
+        }
+
+        func setupSceneSubscription() {
+            guard let arView = arView else { return }
+            updateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
+                self?.orientLabelsTowardsCamera()
+            }
+        }
+
+        /// Orienta las etiquetas flotantes hacia la cámara para que siempre sean legibles desde cualquier ángulo
+        /// de frente (sin efecto espejo).
+        private func orientLabelsTowardsCamera() {
+            guard let arView = arView else { return }
+            let cameraPos = arView.cameraTransform.translation
+            for (_, anchor) in markers {
+                if let label = anchor.findEntity(named: Self.labelEntityName) {
+                    let labelWorldPos = label.position(relativeTo: nil)
+                    var targetPos = cameraPos
+                    targetPos.y = labelWorldPos.y
+                    // RealityKit orienta el eje -Z hacia targetPos con look(at:).
+                    // Como MeshResource.generateText genera su cara frontal hacia +Z,
+                    // rotamos 180° en el eje Y para que la cara frontal mire al usuario legible de izquierda a derecha.
+                    label.look(at: targetPos, from: labelWorldPos, relativeTo: nil)
+                    label.orientation *= simd_quatf(angle: .pi, axis: [0, 1, 0])
+                }
+            }
         }
 
         /// Deja en la escena solo los marcadores que la app conoce (el provisorio y los fijados)
@@ -129,7 +159,7 @@ public struct ARContainerView: UIViewRepresentable {
             }
         }
 
-        /// Color de la esfera para cada aspecto. Sin aspecto, el color normal.
+        /// Color de la esfera para cada aspecto. Sin aspecto, el color normal (azul).
         private static func color(for style: MarkerStyle?) -> UIColor {
             guard let style else { return .systemBlue }
 
@@ -144,7 +174,11 @@ public struct ARContainerView: UIViewRepresentable {
         private func setSphereColor(_ color: UIColor, on anchor: AnchorEntity) {
             for child in anchor.children where child.name != Self.labelEntityName {
                 if let sphere = child as? ModelEntity {
-                    sphere.model?.materials = [SimpleMaterial(color: color, isMetallic: false)]
+                    var material = SimpleMaterial()
+                    material.color = .init(tint: color)
+                    material.roughness = 0.15
+                    material.metallic = 0.0
+                    sphere.model?.materials = [material]
                 }
             }
         }
@@ -162,27 +196,36 @@ public struct ARContainerView: UIViewRepresentable {
             )
             let textMaterial = SimpleMaterial(color: .white, isMetallic: false)
             let textModel = ModelEntity(mesh: textMesh, materials: [textMaterial])
-            textModel.name = Self.labelEntityName
-            // Centrar el texto sobre la esfera, 4 cm por encima
-            textModel.position = simd_float3(-textMesh.bounds.center.x, 0.04, 0)
-            anchor.addChild(textModel)
+            textModel.name = "textMesh"
+            // Habilitar colisión en la etiqueta para que tocar el texto también seleccione el marcador
+            textModel.generateCollisionShapes(recursive: false)
+            // Centrar el texto sobre el origen de su contenedor
+            textModel.position = simd_float3(-textMesh.bounds.center.x, -textMesh.bounds.center.y, 0)
+
+            // Contenedor colocado exactamente 4 cm por encima de la esfera
+            let labelContainer = Entity()
+            labelContainer.name = Self.labelEntityName
+            labelContainer.position = simd_float3(0, 0.04, 0)
+            labelContainer.addChild(textModel)
+
+            anchor.addChild(labelContainer)
         }
 
         @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
             guard let arView = arView else { return }
             let tapLocation = recognizer.location(in: arView)
 
-            // A. Hit-testing sobre objeto 3D existente
+            // A. Hit-testing sobre objeto 3D existente (esfera o etiqueta de texto)
             if let hitEntity = arView.entity(at: tapLocation) {
-                // Buscamos la entidad raíz del marcador para obtener su UUID
-                let markerRoot = hitEntity.anchor as? AnchorEntity ?? hitEntity
-                if let idString = markerRoot.name.components(separatedBy: "_").last,
-                   let markerId = UUID(uuidString: idString) {
-
-                    // Notificar a la app mediante el callback. El color lo decide la app
-                    // y se aplica en la siguiente actualización (ver syncStyles).
-                    parent.onMarkerSelected?(markerId)
-                    return
+                // Buscamos hacia arriba en la jerarquía la entidad que tenga el identificador del marcador
+                var current: Entity? = hitEntity
+                while let entity = current {
+                    if let idString = entity.name.components(separatedBy: "_").last,
+                       let markerId = UUID(uuidString: idString) {
+                        parent.onMarkerSelected?(markerId)
+                        return
+                    }
+                    current = entity.parent
                 }
             }
 
@@ -209,9 +252,14 @@ public struct ARContainerView: UIViewRepresentable {
 
                 // Marcador visual principal: esfera
                 let sphereMesh = MeshResource.generateSphere(radius: 0.025)
-                let sphereMaterial = SimpleMaterial(color: .systemBlue, isMetallic: false)
+                var sphereMaterial = SimpleMaterial()
+                sphereMaterial.color = .init(tint: .systemBlue)
+                sphereMaterial.roughness = 0.15
+                sphereMaterial.metallic = 0.0
+
                 let sphereModel = ModelEntity(mesh: sphereMesh, materials: [sphereMaterial])
-                sphereModel.generateCollisionShapes(recursive: false)
+                // Radio de toque cómodo (4.5 cm) para facilitar selección táctil en el espacio
+                sphereModel.collision = CollisionComponent(shapes: [.generateSphere(radius: 0.045)])
                 sphereModel.name = "marker_\(markerId.uuidString)"
                 anchor.addChild(sphereModel)
 
