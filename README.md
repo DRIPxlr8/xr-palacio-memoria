@@ -41,6 +41,8 @@ En Quiz, los marcadores pendientes muestran «?». Al tocar uno, la app pregunta
 - iPhone compatible con ARKit y con iOS 27 o posterior. El proyecto tiene iOS 27 como versión mínima.
 - Una cuenta de Apple para firmar la app durante el desarrollo.
 
+`PalacioCore` declara iOS 17 como mínimo porque contiene solo lógica reutilizable; esto no cambia el requisito de iOS 27 de la aplicación.
+
 La versión actual se probó en un **iPhone 16 Pro con iOS 27 y Modo desarrollador activado**. El simulador no sirve para probar la cámara ni el seguimiento espacial.
 
 ## Instalación y ejecución

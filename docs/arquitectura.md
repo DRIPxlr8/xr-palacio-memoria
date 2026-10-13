@@ -1,25 +1,37 @@
 # Arquitectura
 
-Tres partes, que corresponden a los tres roles del equipo:
+La aplicación separa la cámara, la interfaz y la lógica de aprendizaje. Así, las vistas no manipulan directamente los objetos de realidad aumentada y las reglas del palacio se pueden probar sin un iPhone.
 
+```text
+Cámara y marcadores AR  <──>  Estado de la app  <──>  Interfaz SwiftUI
+                                   │
+                                   ▼
+                            PalacioCore
 ```
-Capa AR (A)  <──>  Estado de la app (B)  <──>  Interfaz (C)
-                          │
-                    Lógica / PalacioCore (B)
+
+- **AR** (`PalacioMemoria/AR/`): inicia la sesión de ARKit, detecta superficies, crea marcadores, recibe toques y actualiza etiquetas y colores.
+- **Interfaz** (`PalacioMemoria/Features/`, `PalacioMemoria/Shared/`): contiene los paneles de Anclar, Estudio y Quiz, además del selector de modo y los formularios.
+- **Estado de la app** (`PalacioMemoria/App/`): `AppState` conecta la cámara con la interfaz. Mantiene el modo actual, el palacio, el recorrido de estudio y el estado del quiz.
+- **Lógica** (`Packages/PalacioCore/`): define los términos, el palacio, el recorrido de estudio y las reglas del quiz. No conoce ni depende de la cámara o de las vistas.
+
+## Flujo de datos
+
+1. La capa AR avisa cuando el usuario toca una superficie, un marcador o un espacio vacío.
+2. `AppState` actualiza el palacio, el recorrido o el quiz según el modo actual.
+3. SwiftUI vuelve a mostrar el panel correspondiente y la capa AR recibe los nombres y estilos actualizados de los marcadores.
+
+En modo Anclar se crea un marcador provisorio y se confirma o descarta desde el formulario. En Estudio se muestra el término que corresponde buscar y se abre la definición del marcador tocado. En Quiz, los marcadores pendientes muestran «?», se revela la respuesta y se registra el resultado.
+
+## PalacioCore
+
+`PalacioCore` solo importa `Foundation` y sus tests usan `Testing`. Por eso puede compilarse y probarse sin ARKit, RealityKit o SwiftUI:
+
+```bash
+cd Packages/PalacioCore
+swift build
+swift test
 ```
 
-- **Capa AR** (`PalacioMemoria/AR/`): sesión ARKit, detección de planos, raycast al tocar, creación y borrado de anclajes y marcadores, detección de toques sobre marcadores, estilos visuales de los marcadores.
-- **Interfaz** (`PalacioMemoria/Features/`, `PalacioMemoria/Shared/`): vistas SwiftUI de cada modo, selector de modo, formularios, paneles y resumen.
-- **Estado de la app** (`PalacioMemoria/App/`): modelo observable con el modo actual, el término seleccionado, etc. Es el único punto de contacto entre la capa AR y la interfaz: **la capa AR y la interfaz no se llaman directamente.**
-- **Lógica** (`Packages/PalacioCore/`): modelos y reglas de negocio puras (términos, recorrido de estudio, quiz, puntaje), con tests.
+El paquete declara iOS 17 como mínimo porque su lógica no usa APIs posteriores. La aplicación completa tiene iOS 27 como destino mínimo, que es el requisito que aplica al instalarla en un iPhone.
 
-## Regla crítica: PalacioCore debe compilar en Windows y Linux
-
-El rol B desarrolla desde **Windows**, sin Xcode. Por eso `PalacioCore`:
-
-- **Solo puede importar `Foundation`** (y `Testing` en los tests). **Nunca** `SwiftUI`, `UIKit`, `ARKit`, `RealityKit`, `Combine` ni otro framework exclusivo de Apple.
-- Debe compilar y pasar los tests con `swift build` y `swift test` desde la carpeta `Packages/PalacioCore/`.
-- Toda la lógica que no dependa de la cámara ni de la UI va aquí, no en el target de la app.
-- No debe conocer tipos de ARKit. Para referirse a un anclaje usa identificadores propios (por ejemplo `UUID`).
-
-Las decisiones de diseño se registran como ADRs cortos en [`decisiones/`](decisiones/).
+Las decisiones de diseño se registran en [`decisiones/`](decisiones/).
