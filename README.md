@@ -1,6 +1,6 @@
-# Palacio de Memoria en Realidad Aumentada para el Aprendizaje de Terminología Técnica
+# Palacio de Memoria en Realidad Aumentada
 
-Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2)
+Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2).
 
 ## Equipo
 
@@ -8,31 +8,52 @@ Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2)
 - Joaquín Rubio — jrubic@uc.cl
 - Vicente San Juan — sanjuan.vicente@uc.cl
 
-## Descripción del proyecto
+## Descripción
 
-Los estudiantes de asignaturas con alta densidad de terminología técnica, como anatomía, farmacología o glosarios especializados de ingeniería, suelen estudiar con métodos lineales, como listas o tarjetas de memoria, que no aprovechan la memoria espacial. Este proyecto propone una aplicación de realidad aumentada para iPhone que implementa la técnica del *palacio de la memoria* (*method of loci*). El estudiante ancla términos técnicos como marcadores virtuales sobre su propio espacio físico y luego repasa y se autoevalúa recorriendo ese mismo espacio.
+Palacio de Memoria es una aplicación de realidad aumentada para iPhone que usa la técnica del *palacio de la memoria*. El estudiante deja términos técnicos en lugares reales de una sala, los recorre para estudiarlos y luego se autoevalúa recordando qué dejó en cada lugar.
 
-## Por qué XR
+La parte espacial es central: la cámara permite asociar cada término con una posición física y volver a encontrarlo al desplazarse por el espacio.
 
-La asociación espacial es el núcleo de la técnica. El usuario necesita registrar objetos virtuales sobre posiciones reales específicas y mantener esa asociación estable mientras se mueve. Esto depende directamente de las capacidades de *tracking* y registro propias de la realidad aumentada y no se puede replicar con una app 2D convencional.
+## Funciones
 
-## Casos de uso
+### Anclar
 
-1. **CU1 · Anclar** — el usuario toca una superficie detectada por la cámara, coloca un marcador virtual y le asocia un término y su definición.
-2. **CU2 · Estudio** — el usuario recorre el espacio y, al tocar un marcador, ve su definición.
-3. **CU3 · Quiz** — los marcadores muestran "?"; el usuario intenta recordar la definición, toca para revelarla y marca si acertó o no. Al final ve los términos a repasar.
+En modo Anclar, el usuario toca una superficie detectada por la cámara. La app crea un marcador provisorio, abre un formulario y permite escribir un término y su definición o elegirlos desde el glosario. Al confirmar, el nombre queda sobre el marcador durante la sesión.
 
-## Stack
+### Estudio
 
-- Swift 6, SwiftUI, ARKit y RealityKit (sin Unity ni motores de terceros)
-- Plataforma objetivo: iPhone con iOS 17 o superior
-- Tests con Swift Testing
-- Lógica pura en el paquete SwiftPM `Packages/PalacioCore`, que solo depende de `Foundation` y compila en Windows, Linux y Mac
+El modo Estudio propone un término y muestra su posición dentro del recorrido. El usuario debe recordar dónde lo dejó y tocar el marcador correspondiente para ver la definición. Después puede avanzar al siguiente término o saltarlo.
+
+### Quiz
+
+En Quiz, los marcadores pendientes muestran «?». Al tocar uno, la app pregunta qué término se dejó ahí. La respuesta se revela solo después de pulsar el botón correspondiente y luego el usuario marca si acertó o no. Al finalizar, se muestra el puntaje y los términos que conviene repasar. El quiz se puede reiniciar.
+
+## Tecnologías
+
+- Swift 6 y SwiftUI
+- ARKit y RealityKit
+- Swift Testing para la lógica de `PalacioCore`
+- Paquete local `Packages/PalacioCore`, sin dependencias de ARKit ni SwiftUI
 
 ## Requisitos
 
-- **App completa:** Mac con Xcode y un iPhone físico (el simulador no tiene cámara AR).
-- **PalacioCore (lógica y tests):** cualquier sistema con Swift 6 (Windows, Linux o Mac).
+- Mac con una versión de Xcode compatible con el SDK de iOS 27.
+- iPhone compatible con ARKit y con iOS 27 o posterior. El proyecto tiene iOS 27 como versión mínima.
+- Una cuenta de Apple para firmar la app durante el desarrollo.
+
+`PalacioCore` declara iOS 17 como mínimo porque contiene solo lógica reutilizable; esto no cambia el requisito de iOS 27 de la aplicación.
+
+La versión actual se probó en un **iPhone 16 Pro con iOS 27 y Modo desarrollador activado**. El simulador no sirve para probar la cámara ni el seguimiento espacial.
+
+## Instalación y ejecución
+
+1. Abre `PalacioMemoria.xcodeproj` en Xcode.
+2. Conecta el iPhone y selecciónalo como destino de ejecución.
+3. En **Signing & Capabilities**, selecciona tu cuenta en el campo **Team**.
+4. Activa el Modo desarrollador en el iPhone, si todavía no está activo.
+5. Ejecuta la app con **Cmd + R** y acepta el permiso de cámara en el primer inicio.
+
+La carpeta `Build/` contiene los artefactos preparados para la entrega. Para instalar en otro iPhone, se debe firmar la app para ese dispositivo desde Xcode o volver a firmar el paquete con una cuenta compatible.
 
 ## Tests de PalacioCore
 
@@ -42,36 +63,22 @@ swift build
 swift test
 ```
 
-En Windows con Swift 6.4, si el build falla con `'stdlib.h' file not found`, agregar `--build-system native` a ambos comandos.
-
-## Instalación
-
-*Pendiente.*
-
-## Uso
-
-*Pendiente.*
+En Windows con Swift 6.4, si aparece el error `'stdlib.h' file not found`, agrega `--build-system native` a ambos comandos.
 
 ## Estado actual
 
-- [x] Hito 1 — Formulación del proyecto (entregado 8 de septiembre de 2026)
-- [ ] Hito 2 — Prototipo lo-fi (13 de octubre de 2026)
-- [ ] Hito 3 — Prototipo final (24 de noviembre de 2026)
+El prototipo lo-fi implementa los tres flujos principales: anclar términos, repasarlos en un recorrido y responder un quiz. Se probaron seguidos en el iPhone, incluyendo la selección de marcadores, los cambios de color, las etiquetas y el resumen final.
+
+Por ahora los términos y marcadores solo existen durante la sesión actual. La persistencia entre sesiones, los modelos 3D por término y el seguimiento del progreso son mejoras previstas para el siguiente hito.
 
 ## Estructura del repositorio
 
 ```text
-PalacioMemoria/          → código de la app iOS (App, AR, Features, Shared, Resources)
-Packages/PalacioCore/    → lógica pura + tests
-docs/                    → arquitectura, registro de pruebas y decisiones
-Build/                   → ejecutable para instalar en iPhone
-informe/                 → informe (IEEE) de cada hito
-.github/                 → plantillas de issues/PR y CI
-CLAUDE.md                → guía de trabajo del repositorio
+PalacioMemoria/          → código de la app iOS
+Packages/PalacioCore/    → lógica y pruebas automatizadas
+docs/                    → arquitectura, decisiones y pruebas
+Build/                   → artefactos de la entrega
+informe/                 → informe del proyecto
 ```
 
 La arquitectura se describe en [docs/arquitectura.md](docs/arquitectura.md).
-
-## Informe
-
-El informe se versiona en `/informe` (fuente LaTeX y PDF compilado). A medida que el proyecto avanza entre hitos, se actualiza sobre la misma base en lugar de reescribirse desde cero, y cada entrega queda marcada como un punto identificable en el historial.
