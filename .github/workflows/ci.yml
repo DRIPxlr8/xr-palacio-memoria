@@ -20,5 +20,10 @@ jobs:
       - name: Correr tests
         run: swift test
 
-  # El build de la app con xcodebuild (macos-latest) se agrega cuando exista
-  # PalacioMemoria.xcodeproj (rol A).
+  app-build:
+    name: Build de App iOS (Xcode)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar App iOS
+        run: xcodebuild -project PalacioMemoria.xcodeproj -scheme PalacioMemoria -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
