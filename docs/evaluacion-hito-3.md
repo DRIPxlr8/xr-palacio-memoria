@@ -13,11 +13,11 @@ La evaluación preliminar se apoya en tres pruebas exploratorias de Vicente San 
 
 Las compilaciones corregidas se instalaron en el iPhone de prueba. La 0.2.6 se verificó con las pruebas de lógica del catálogo, colocación, dimensiones, selección y puntaje. RealityKit cargó las 15 superficies de los tres modelos. La verificación técnica evalúa funcionamiento y los comentarios internos orientan ajustes de interacción.
 
-## Protocolo del piloto con estudiantes
+## Método del piloto con estudiantes
 
-**Estado** Tres sesiones pendientes. La prueba usará la **0.2.6, compilación 8**, con tres estudiantes de Veterinaria identificados como P1, P2 y P3. Se usará el mismo iPhone 16 Pro, el mismo moderador, una mesa, el mismo punto marcado y luz comparable. Se reiniciará la sesión de realidad aumentada antes de cada persona. La única estación del piloto será Hombro.
+El protocolo contempla **tres sesiones de 12 minutos** con estudiantes de Veterinaria, con el mismo iPhone 16 Pro, entorno y moderador. Usa la versión **0.2.6, compilación 8**. Se reinicia la sesión de realidad aumentada para cada persona y se mantiene el mismo punto de colocación de Hombro, la misma mesa y una iluminación comparable.
 
-Cada sesión dura **12 minutos** y el moderador cambia de etapa al mismo tiempo. La app utiliza el mismo conjunto de cuatro consignas de Hombro y puede variar el orden.
+Las tareas son anclar Hombro, explorar dos estructuras y responder cuatro consignas. Se registran aciertos, ayudas, dificultades táctiles y una sugerencia por estudiante. El orden de las consignas puede variar.
 
 | Tiempo | Actividad | Registro |
 |---|---|---|
