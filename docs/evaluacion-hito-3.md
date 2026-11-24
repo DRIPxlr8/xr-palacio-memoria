@@ -1,46 +1,51 @@
 # Evaluación preliminar del Hito 3
 
-## Piloto interno de usabilidad
+## Piloto interno e iteraciones
 
-Vicente San Juan, integrante del equipo, probó las versiones 0.2.2 a 0.2.5 en un iPhone 16 Pro el 21 y 22 de noviembre de 2026. La tabla registra las observaciones de esas pruebas internas y la versión en que se aplicó cada cambio.
+Primeras iteraciones del prototipo y comprobación interna en iPhone 16 Pro.
 
-| Versión probada | Tarea y observación | Recomendación | Cambio implementado |
-|---|---|---|---|
-| 0.2.2 | Al responder en Quiz, dos colores dificultaban distinguir piezas vecinas. | Asignar un color distinto a cada superficie. | 0.2.3. Colores por pieza y selección en blanco antes de confirmar. |
-| 0.2.3 | Al colocar en el suelo, observar el modelo obligaba a agacharse. | Ajustar altura y tamaño por estación. | 0.2.4. Controles de altura y tamaño durante la colocación y la edición. |
-| 0.2.4 | Al elegir una estructura en Estudiar, el modelo podía girar automáticamente. | Conservar la orientación del modelo y permitir que la persona se mueva. | 0.2.5. Se resalta la pieza en su sitio. |
-| 0.2.5 | Al salir de Quiz, el aviso aparecía sobre la cámara. | Llevar la confirmación al panel de modos. | 0.2.6. Confirmación integrada en el panel de Quiz. |
+| ASPECTO | VERSIÓN ANTERIOR | VERSIÓN ACTUAL |
+|---|---|---|
+| Carga de modelos | La primera versión permitía colocar un solo modelo en RA. | Hombro, codo y carpo cargan sin conexión. Se pueden anclar varios modelos a la vez. |
+| Inspección 3D en Estudiar | En la cámara se veía un marcador fijo con el nombre del término. | Puedes girar el hueso con un dedo y ampliarlo con dos para examinar sus detalles. |
+| Modo Estudiar | Se seguían marcadores y se leía la definición asociada a cada uno. | Al elegir una estructura, la app la resalta en el hueso y muestra una pista. |
 
-## Verificación técnica de la versión 0.2.6
+## Resultados de la evaluación
 
-Las compilaciones corregidas se instalaron en el iPhone de prueba. En la 0.2.6 se verificaron las reglas de catálogo, colocación, dimensiones, selección y puntaje. RealityKit cargó 15 superficies seleccionables entre hombro (4), codo (5) y carpo (6).
+### OBSERVACIÓN EN EL IPHONE
+
+En Estudiar, la estructura elegida se resalta sobre el hueso.
+
+Puedes rodear el modelo, girarlo con un dedo o ampliarlo con dos para observar sus detalles.
+
+### VERIFICACIÓN TÉCNICA
+
+RealityKit cargó los tres modelos incluidos en la app.
+
+Se verificaron 15 superficies seleccionables entre hombro (4), codo (5) y carpo (6).
+
+El piloto interno orientó mejoras de usabilidad.
 
 ## Método del piloto con estudiantes
 
-El protocolo contempla **tres sesiones de 12 minutos** con estudiantes de Veterinaria, con el mismo iPhone 16 Pro, entorno y moderador. Usa la versión **0.2.6, compilación 8**. Se reinicia la sesión de realidad aumentada para cada persona y se mantiene el mismo punto de colocación de Hombro, la misma mesa y una iluminación comparable.
+### TRES SESIONES DE 12 MINUTOS
 
-Las tareas son anclar Hombro, explorar dos estructuras y responder cuatro consignas. Se registran aciertos, ayudas, dificultades táctiles y una sugerencia por estudiante. El orden de las consignas puede variar.
+Mismo iPhone, entorno y moderador
 
-| Tiempo | Actividad | Registro |
+Introducción 1 min, colocación 2 min, estudio 3 min, quiz 4 min y entrevista 2 min.
+
+### TAREAS Y REGISTRO
+
+Anclar Hombro, explorar dos estructuras y responder cuatro consignas.
+
+Registrar aciertos, ayudas, dificultades táctiles y una sugerencia por estudiante.
+
+## Lámina 10 · «Registro del piloto con estudiantes»
+
+Las notas del presentador de la lámina 10 atribuyen estas observaciones al piloto interno de usabilidad de Vicente San Juan, integrante del equipo, en un iPhone 16 Pro.
+
+| QUÉ SE PROBÓ | QUÉ SE OBSERVÓ | QUÉ CAMBIÓ |
 |---|---|---|
-| 00:00–01:00 | Introducción con el mismo guion. | Año o curso y familiaridad con RA. |
-| 01:00–03:00 | Colocar y confirmar Hombro en el punto marcado. | Completó, completó con ayuda o quedó incompleta. Tiempo hasta confirmar. |
-| 03:00–06:00 | Resaltar cavidad glenoidea y cabeza del húmero. Rodear el modelo. | Completitud y observación desde más de un ángulo. |
-| 06:00–10:00 | Resolver las cuatro consignas del quiz. | Orden real, aciertos al primer intento confirmado y preguntas pendientes. Registrar dificultades táctiles por separado. |
-| 10:00–12:00 | Entrevista con tres preguntas fijas. | Comentarios y una sugerencia prioritaria de cada persona. |
-
-**Guion inicial.** «Te pediré tres tareas. Usa la aplicación como lo harías por tu cuenta. Si algo te confunde, dilo en voz alta». Ante una consulta, repetir la consigna antes de dar una pista de interfaz y contar las intervenciones.
-
-**Preguntas de la entrevista.** ¿Cuándo te costó más saber qué hacer? ¿Qué te ayudó a reconocer o seleccionar una parte? ¿Qué cambiarías y por qué?
-
-## Registro del piloto con estudiantes
-
-**Versión evaluada.** 0.2.6, compilación 8, en iPhone 16 Pro.
-
-**Resultados por participante.** Por incorporar en este registro.
-
-**Datos de cada sesión.** Código (P1, P2 o P3), fecha, familiaridad con RA, tiempo de colocación, resultado de cada tarea, primera respuesta confirmada por consigna, preguntas pendientes, ayudas, dificultades táctiles, incidentes y sugerencia.
-
-**Registro de cambios posteriores.** Código de participante, versión probada, observación, recomendación, decisión, versión corregida y resultado de la reprueba. El piloto evalúa usabilidad. Medir aprendizaje requiere contrastar el reconocimiento antes y después de estudiar.
-
-El [registro del Hito 2](pruebas.md) corresponde a Palacio de Memoria.
+| Altura y tamaño<br>Versión 0.2.3 | El modelo quedaba demasiado bajo al usar el suelo. Había que agacharse. | 0.2.4. Ajuste de altura y tamaño por estación. |
+| Piezas en Quiz<br>Versión 0.2.2 | Dos colores dejaban piezas adyacentes sin distinguir. | 0.2.3. Color por pieza y selección visible antes de confirmar. |
+| Orientación en Estudiar<br>Versión 0.2.4 | Al elegir una estructura en Estudiar, el modelo a veces giraba solo. | 0.2.5. Resaltado en su sitio y orientación fija. |
