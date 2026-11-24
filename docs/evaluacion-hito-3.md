@@ -2,7 +2,7 @@
 
 ## Piloto interno de usabilidad
 
-La evaluación preliminar se apoya en tres pruebas exploratorias de Vicente San Juan, integrante del equipo, en un iPhone 16 Pro, el 21 y 22 de noviembre de 2026. La tabla registra esas tres pruebas y el ajuste adicional del aviso de salida del quiz.
+Vicente San Juan, integrante del equipo, probó las versiones 0.2.2 a 0.2.5 en un iPhone 16 Pro el 21 y 22 de noviembre de 2026. La tabla registra las observaciones de esas pruebas internas y la versión en que se aplicó cada cambio.
 
 | Versión probada | Tarea y observación | Recomendación | Cambio implementado |
 |---|---|---|---|
@@ -11,7 +11,9 @@ La evaluación preliminar se apoya en tres pruebas exploratorias de Vicente San 
 | 0.2.4 | Al elegir una estructura en Estudiar, el modelo podía girar automáticamente. | Conservar la orientación del modelo y permitir que la persona se mueva. | 0.2.5. Se resalta la pieza en su sitio. |
 | 0.2.5 | Al salir de Quiz, el aviso aparecía sobre la cámara. | Llevar la confirmación al panel de modos. | 0.2.6. Confirmación integrada en el panel de Quiz. |
 
-Las compilaciones corregidas se instalaron en el iPhone de prueba. La 0.2.6 se verificó con las pruebas de lógica del catálogo, colocación, dimensiones, selección y puntaje. RealityKit cargó las 15 superficies de los tres modelos. La verificación técnica evalúa funcionamiento y los comentarios internos orientan ajustes de interacción.
+## Verificación técnica de la versión 0.2.6
+
+Las compilaciones corregidas se instalaron en el iPhone de prueba. En la 0.2.6 se verificaron las reglas de catálogo, colocación, dimensiones, selección y puntaje. RealityKit cargó 15 superficies seleccionables entre hombro (4), codo (5) y carpo (6).
 
 ## Método del piloto con estudiantes
 
@@ -31,7 +33,13 @@ Las tareas son anclar Hombro, explorar dos estructuras y responder cuatro consig
 
 **Preguntas de la entrevista.** ¿Cuándo te costó más saber qué hacer? ¿Qué te ayudó a reconocer o seleccionar una parte? ¿Qué cambiarías y por qué?
 
-**Registro de una sesión.** Código, fecha, versión, familiaridad con RA, tiempo de colocación, resultado de cada tarea, primera respuesta confirmada por consigna, preguntas pendientes, ayudas, dificultades táctiles, incidentes y sugerencia.
+## Registro del piloto con estudiantes
+
+**Versión evaluada.** 0.2.6, compilación 8, en iPhone 16 Pro.
+
+**Resultados por participante.** Por incorporar en este registro.
+
+**Datos de cada sesión.** Código (P1, P2 o P3), fecha, familiaridad con RA, tiempo de colocación, resultado de cada tarea, primera respuesta confirmada por consigna, preguntas pendientes, ayudas, dificultades táctiles, incidentes y sugerencia.
 
 **Registro de cambios posteriores.** Código de participante, versión probada, observación, recomendación, decisión, versión corregida y resultado de la reprueba. El piloto evalúa usabilidad. Medir aprendizaje requiere contrastar el reconocimiento antes y después de estudiar.
 
