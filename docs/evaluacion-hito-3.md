@@ -40,9 +40,7 @@ Anclar Hombro, explorar dos estructuras y responder cuatro consignas.
 
 Registrar aciertos, ayudas, dificultades táctiles y una sugerencia por estudiante.
 
-## Lámina 10 · «Registro del piloto con estudiantes»
-
-Las notas del presentador de la lámina 10 atribuyen estas observaciones al piloto interno de usabilidad de Vicente San Juan, integrante del equipo, en un iPhone 16 Pro.
+## Registro del piloto con estudiantes
 
 | QUÉ SE PROBÓ | QUÉ SE OBSERVÓ | QUÉ CAMBIÓ |
 |---|---|---|
