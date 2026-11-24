@@ -1,84 +1,35 @@
-# Palacio de Memoria en Realidad Aumentada
+# Anatomía Canina en RA
 
-Proyecto del curso IDI3185, Realidad Extendida (UC, 2026-2).
+Prototipo final de IDI3185 Realidad Extendida, UC, segundo semestre de 2026. Versión 0.2.6, compilación 8.
 
-## Equipo
+**Equipo** Benjamín Masson, Joaquín Rubio y Vicente San Juan.
 
-- Benjamín Masson — benjamin.masson@uc.cl
-- Joaquín Rubio — jrubic@uc.cl
-- Vicente San Juan — sanjuan.vicente@uc.cl
+## Qué hace
 
-## Descripción
+Permite estudiar el miembro anterior izquierdo de un perro mediante estaciones de realidad aumentada. El estudiante coloca modelos de hombro, codo y carpo, los inspecciona desde diferentes posiciones y responde un quiz tocando la estructura que pide la consigna.
 
-Palacio de Memoria es una aplicación de realidad aumentada para iPhone que usa la técnica del *palacio de la memoria*. El estudiante deja términos técnicos en lugares reales de una sala, los recorre para estudiarlos y luego se autoevalúa recordando qué dejó en cada lugar.
+- **Colocar.** Abre la cámara y toca una superficie horizontal. Ajusta altura y tamaño antes de confirmar. Para mover o quitar una estación, vuelve a Colocar.
+- **Estudiar.** Elige una estructura para resaltarla y leer su pista. Puedes rodear el modelo para cambiar de punto de vista.
+- **Quiz.** Lee la consigna, toca una pieza y confirma. Las preguntas salen de las estaciones confirmadas. Cada región aporta cuatro preguntas.
 
-La parte espacial es central: la cámara permite asociar cada término con una posición física y volver a encontrarlo al desplazarse por el espacio.
-
-## Funciones
-
-### Anclar
-
-En modo Anclar, el usuario toca una superficie detectada por la cámara. La app crea un marcador provisorio, abre un formulario y permite escribir un término y su definición o elegirlos desde el glosario. Al confirmar, el nombre queda sobre el marcador durante la sesión.
-
-### Estudio
-
-El modo Estudio propone un término y muestra su posición dentro del recorrido. El usuario debe recordar dónde lo dejó y tocar el marcador correspondiente para ver la definición. Después puede avanzar al siguiente término o saltarlo.
-
-### Quiz
-
-En Quiz, los marcadores pendientes muestran «?». Al tocar uno, la app pregunta qué término se dejó ahí. La respuesta se revela solo después de pulsar el botón correspondiente y luego el usuario marca si acertó o no. Al finalizar, se muestra el puntaje y los términos que conviene repasar. El quiz se puede reiniciar.
-
-## Tecnologías
-
-- Swift 6 y SwiftUI
-- ARKit y RealityKit
-- Swift Testing para la lógica de `PalacioCore`
-- Paquete local `Packages/PalacioCore`, sin dependencias de ARKit ni SwiftUI
-
-## Requisitos
-
-- Mac con una versión de Xcode compatible con el SDK de iOS 27.
-- iPhone compatible con ARKit y con iOS 27 o posterior. El proyecto tiene iOS 27 como versión mínima.
-- Una cuenta de Apple para firmar la app durante el desarrollo.
-
-`PalacioCore` declara iOS 17 como mínimo porque contiene solo lógica reutilizable; esto no cambia el requisito de iOS 27 de la aplicación.
-
-La versión actual se probó en un **iPhone 16 Pro con iOS 27 y Modo desarrollador activado**. El simulador no sirve para probar la cámara ni el seguimiento espacial.
+Las estaciones duran la sesión activa de cámara. El progreso de estudio y el último resultado por región se guardan en el iPhone.
 
 ## Instalación y ejecución
 
-1. Abre `PalacioMemoria.xcodeproj` en Xcode.
-2. Conecta el iPhone y selecciónalo como destino de ejecución.
-3. En **Signing & Capabilities**, selecciona tu cuenta en el campo **Team**.
-4. Activa el Modo desarrollador en el iPhone, si todavía no está activo.
-5. Ejecuta la app con **Cmd + R** y acepta el permiso de cámara en el primer inicio.
+- [Instalación del paquete iOS 0.2.6](Build/INSTALL.md)
+- [Instalación y pruebas desde el código](AnatomiaCanina/README.md)
 
-La carpeta `Build/` contiene los artefactos preparados para la entrega. Para instalar en otro iPhone, se debe firmar la app para ese dispositivo desde Xcode o volver a firmar el paquete con una cuenta compatible.
+Abre **Anatomía Canina** en un iPhone con iOS 27, concede permiso de cámara y pulsa **Abrir cámara**. Para la demo, usa un lugar iluminado con una superficie que tenga detalles visibles. El paquete de desarrollo se instala en un dispositivo registrado en su perfil de firma.
 
-## Tests de PalacioCore
+## Tecnologías y estructura
 
-```bash
-cd Packages/PalacioCore
-swift build
-swift test
-```
+- **SwiftUI** administra los modos y el estado de la sesión. **ARKit** estima la pose del dispositivo y las superficies. **RealityKit** ubica los modelos USDZ y detecta qué pieza recibe el toque.
+- [AnatomiaCanina/](AnatomiaCanina/) contiene la aplicación, tres modelos 3D, instrucciones de desarrollo y pruebas.
+- [Build/](Build/) contiene el paquete de iOS y las instrucciones de instalación.
+- [Evaluación del Hito 3](docs/evaluacion-hito-3.md) reúne los hallazgos internos, las iteraciones y el protocolo del piloto con estudiantes.
+- [Ensayo de la demo](docs/demo-hito-3.md) detalla el recorrido, la comprobación en sala y la grabación de respaldo.
+- [archivo/PalacioMemoria/](archivo/PalacioMemoria/) conserva el código y la documentación del prototipo anterior. Su [paquete del Hito 2](Build/PalacioMemoria-iOS-v0.2.zip) sigue disponible en `Build/`.
 
-En Windows con Swift 6.4, si aparece el error `'stdlib.h' file not found`, agrega `--build-system native` a ambos comandos.
+## Modelos y créditos
 
-## Estado actual
-
-El prototipo lo-fi implementa los tres flujos principales: anclar términos, repasarlos en un recorrido y responder un quiz. Se probaron seguidos en el iPhone, incluyendo la selección de marcadores, los cambios de color, las etiquetas y el resumen final.
-
-Por ahora los términos y marcadores solo existen durante la sesión actual. La persistencia entre sesiones, los modelos 3D por término y el seguimiento del progreso son mejoras previstas para el siguiente hito.
-
-## Estructura del repositorio
-
-```text
-PalacioMemoria/          → código de la app iOS
-Packages/PalacioCore/    → lógica y pruebas automatizadas
-docs/                    → arquitectura, decisiones y pruebas
-Build/                   → artefactos de la entrega
-informe/                 → informe del proyecto
-```
-
-La arquitectura se describe en [docs/arquitectura.md](docs/arquitectura.md).
+Las mallas del miembro anterior derivan de Charles y colaboradores, University of Liverpool, bajo [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.es). Las regiones seleccionables son anotaciones en las superficies de esas mallas, con revisión anatómica pendiente en zonas articulares y carpales. [Conjunto original](https://doi.org/10.17638/datacat.liverpool.ac.uk/3093) · [Adaptaciones y referencias anatómicas](AnatomiaCanina/README.md)

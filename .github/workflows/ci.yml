@@ -22,8 +22,14 @@ jobs:
 
   app-build:
     name: Build de App iOS (Xcode)
-    runs-on: macos-14
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v4
-      - name: Compilar App iOS
-        run: xcodebuild -project PalacioMemoria.xcodeproj -scheme PalacioMemoria -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+      - name: Compilar Anatomía Canina para iOS
+        run: xcodebuild -project AnatomiaCanina/AnatomiaCanina.xcodeproj -scheme AnatomiaCanina -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+      - name: Verificar las reglas del catálogo
+        working-directory: AnatomiaCanina
+        run: |
+          anatomy_checks_dir="$(mktemp -d)"
+          swiftc AnatomiaCanina/Catalog.swift Tests/VerifyCatalog.swift -o "$anatomy_checks_dir/verify-catalog"
+          "$anatomy_checks_dir/verify-catalog"

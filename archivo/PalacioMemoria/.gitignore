@@ -1,0 +1,35 @@
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+*.moved-aside
+*.hmap
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/**/Package.resolved
+
+# Editores
+.vscode/
+.idea/
+
+# Entorno local
+.env
+.env.*
+*.local
+
+# LaTeX (informe)
+*.aux
+*.out
+*.log
+
+# Nota: Build/ NO se ignora; ahí va el ejecutable entregable.
